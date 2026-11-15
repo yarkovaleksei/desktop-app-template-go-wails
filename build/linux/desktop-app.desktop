@@ -1,10 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=desktop-app
+Name=Desktop App
+Comment=Desktop application on Go, Wails 3, React and MUI
 Exec=desktop-app
 Icon=desktop-app
-Categories=Development;
+Categories=Utility;
 Terminal=false
-Keywords=wails
-Version=1.0
 StartupNotify=false
