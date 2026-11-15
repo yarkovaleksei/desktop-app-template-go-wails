@@ -144,7 +144,11 @@ jobs:
       - name: yarn через corepack
         run: corepack enable
 
+      # Без CGO: с ним CLI на Linux требует GTK 4 и WebKitGTK, а для запуска
+      # задач они не нужны.
       - name: wails3
+        env:
+          CGO_ENABLED: 0
         run: |
           version=$(go list -m -f '{{.Version}}' github.com/wailsapp/wails/v3)
           go install "github.com/wailsapp/wails/v3/cmd/wails3@$version"
