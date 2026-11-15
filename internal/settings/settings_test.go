@@ -107,6 +107,36 @@ func TestLoadNormalizesHandEdited(t *testing.T) {
 	}
 }
 
+func TestOpen(t *testing.T) {
+	st := newStore(t)
+	got, err := st.Open()
+	if err != nil || got != Defaults() {
+		t.Fatalf("Open без файла: %+v, %v", got, err)
+	}
+	if _, err := os.Stat(st.Path()); err != nil {
+		t.Fatalf("файл умолчаний не создан: %v", err)
+	}
+	want := Defaults()
+	want.Background = true
+	if err := st.Save(want); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := New(st.Path()).Open(); err != nil || got != want {
+		t.Errorf("Open существующего файла: %+v, %v; ожидалось %+v", got, err, want)
+	}
+
+	broken := newStore(t)
+	if err := os.WriteFile(broken.Path(), []byte("{"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := broken.Open(); !errors.Is(err, kitsettings.ErrBroken) {
+		t.Errorf("Open испорченного файла: %v", err)
+	}
+	if data, _ := os.ReadFile(broken.Path()); string(data) != "{" {
+		t.Errorf("испорченный файл перезаписан: %q", data)
+	}
+}
+
 func TestBrokenFileKept(t *testing.T) {
 	st := newStore(t)
 	if err := os.WriteFile(st.Path(), []byte("{не json"), 0o600); err != nil {

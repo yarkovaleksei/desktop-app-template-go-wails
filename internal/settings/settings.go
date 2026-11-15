@@ -7,6 +7,9 @@
 package settings
 
 import (
+	"errors"
+	"io/fs"
+	"os"
 	"slices"
 
 	"github.com/yarkovaleksei/go-desktop-kit/apperr"
@@ -109,6 +112,18 @@ func New(path string) *Store {
 func (s *Store) Load() (Settings, error) {
 	v, err := s.store.Load()
 	return v.normalize(), err
+}
+
+// Open читает настройки при запуске и, если файла ещё нет, записывает в него
+// умолчания: пользователь находит файл на месте и с первого запуска видит, что
+// можно настроить. Ошибки — как у Load; ошибка первой записи возвращается
+// вместе с умолчаниями.
+func (s *Store) Open() (Settings, error) {
+	if _, err := os.Stat(s.Path()); !errors.Is(err, fs.ErrNotExist) {
+		return s.Load()
+	}
+	v := Defaults()
+	return v, s.Save(v)
 }
 
 // Save проверяет и записывает настройки. Недопустимое значение — ошибка из
