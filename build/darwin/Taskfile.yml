@@ -19,6 +19,7 @@ tasks:
           EXTRA_TAGS: '{{.EXTRA_TAGS}}'
           OBFUSCATED: '{{.OBFUSCATED}}'
           GARBLE_ARGS: '{{.GARBLE_ARGS}}'
+          PACKAGE_FORMAT: '{{.PACKAGE_FORMAT}}'
     vars:
       DEFAULT_OUTPUT: '{{.BIN_DIR}}/{{.APP_NAME}}'
       OUTPUT: '{{ .OUTPUT | default .DEFAULT_OUTPUT }}'
@@ -44,7 +45,7 @@ tasks:
       - wails3 tool prepare-macos-output --dir "{{.BIN_DIR}}"
       - '{{if eq .OBFUSCATED "true"}}garble {{.GARBLE_ARGS}} build{{else}}go build{{end}} {{.BUILD_FLAGS}} -o "{{.OUTPUT}}"'
     vars:
-      BUILD_FLAGS: '{{if eq .DEV "true"}}{{if or .EXTRA_TAGS (eq .OBFUSCATED "true")}}-tags {{if eq .OBFUSCATED "true"}}wails_obfuscated{{if .EXTRA_TAGS}},{{end}}{{end}}{{.EXTRA_TAGS}} {{end}}-buildvcs=false -gcflags=all="-l"{{else}}-tags production{{if eq .OBFUSCATED "true"}},wails_obfuscated{{end}}{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s -X main.version={{.APP_VERSION}}"{{end}}'
+      BUILD_FLAGS: '{{if eq .DEV "true"}}{{if or .EXTRA_TAGS (eq .OBFUSCATED "true")}}-tags {{if eq .OBFUSCATED "true"}}wails_obfuscated{{if .EXTRA_TAGS}},{{end}}{{end}}{{.EXTRA_TAGS}} {{end}}-buildvcs=false -gcflags=all="-l"{{else}}-tags production{{if eq .OBFUSCATED "true"}},wails_obfuscated{{end}}{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s -X main.version={{.APP_VERSION}}{{if .PACKAGE_FORMAT}} -X main.packageFormat={{.PACKAGE_FORMAT}}{{end}}"{{end}}'
       DEFAULT_OUTPUT: '{{.BIN_DIR}}/{{.APP_NAME}}'
       OUTPUT: '{{ .OUTPUT | default .DEFAULT_OUTPUT }}'
     env:
@@ -62,10 +63,12 @@ tasks:
         vars:
           ARCH: amd64
           OUTPUT: "{{.BIN_DIR}}/{{.APP_NAME}}-amd64"
+          PACKAGE_FORMAT: "{{.PACKAGE_FORMAT}}"
       - task: build
         vars:
           ARCH: arm64
           OUTPUT: "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
+          PACKAGE_FORMAT: "{{.PACKAGE_FORMAT}}"
     cmds:
       - task: build:universal:lipo:native
 
@@ -77,25 +80,23 @@ tasks:
       - rm "{{.BIN_DIR}}/{{.APP_NAME}}-amd64" "{{.BIN_DIR}}/{{.APP_NAME}}-arm64"
 
   package:
-    summary: Packages the application into a `.app` bundle
+    summary: Универсальный .app (arm64 + amd64) с подписью ad-hoc в bin/desktop-app.dmg
+    # Формат dmg вшивается в бинарь: по нему приложение знает, какой файл
+    # скачивать при обновлении.
+    deps:
+      - task: build:universal
+        vars:
+          PACKAGE_FORMAT: dmg
+    cmds:
+      - task: create:app:bundle
+      - task: create:dmg
+
+  package:app:
+    summary: .app для текущей архитектуры, без .dmg и без вшитого формата
     deps:
       - task: build
     cmds:
       - task: create:app:bundle
-
-  package:universal:
-    summary: Packages darwin universal binary (arm64 + amd64)
-    deps:
-      - task: build:universal
-    cmds:
-      - task: create:app:bundle
-
-  package:dmg:
-    summary: Packages the application into a styled `.dmg`
-    deps:
-      - task: package
-    cmds:
-      - task: create:dmg
 
   create:dmg:
     summary: Creates a configurable `.dmg` from the `.app` bundle
@@ -128,6 +129,9 @@ tasks:
       - cp build/darwin/icons.icns "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/Resources"
       - cp "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/MacOS"
       - cp build/darwin/Info.plist "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents"
+      # Info.plist принимает только числовую версию X.Y.Z.
+      - plutil -replace CFBundleShortVersionString -string "{{.APP_VERSION_NUM}}" "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/Info.plist"
+      - plutil -replace CFBundleVersion -string "{{.APP_VERSION_NUM}}" "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/Info.plist"
       - task: codesign:adhoc
 
   codesign:adhoc:
