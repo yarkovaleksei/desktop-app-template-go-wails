@@ -140,13 +140,15 @@ WebKitGTK на Linux пишет своё хранилище в `~/.cache/desktop
 | Вид | Где | Что покрывает | Команда |
 | --- | --- | --- | --- |
 | Go, модульные | `internal/app`, `internal/settings`, `internal/texts`, `internal/updatecheck`, `scripts/icon` | Сервисы с подставными зависимостями, схема настроек, словари Go, расписание фоновой проверки | `wails3 task test:go` |
-| Правила репозитория | `internal/archtest` | Wails только в `main` и `internal/app`; имена приложения во всех файлах; коды ошибок; метки пакетов; ключи текстов Go | `wails3 task test:go` |
+| Правила репозитория | `internal/archtest` | Wails только в `main` и `internal/app`; имена приложения во всех файлах; коды ошибок; метки пакетов; ключи текстов Go; скиллы агентов, их симлинки и таблица в `AGENTS.md` | `wails3 task test:go` |
 | Документы | `internal/repodocs` | Ссылки, якоря, пути, задачи и скрипты в Markdown; актуальность карты кода | `wails3 task check:docs` |
 | Гонки | `internal/...` | То же ядро под `-race` | `wails3 task check:race` |
 | Фронтенд, модульные | `frontend/src/**/*.test.ts(x)` | Ошибки и моки, стор на `fakeSource`, страницы и блок обновлений, словари, тема и контраст, правило «нет текста в JSX» | `wails3 task test:frontend` |
 | Сквозные | `frontend/e2e` | Каждая страница в двух темах и на двух языках, переключатели настроек, все состояния блока обновлений, нет ошибок в консоли — в Chromium на моках | `wails3 task test:e2e` |
 | Привязки | `frontend/bindings` | Совпадают с Go-сервисами | `wails3 task check:bindings` |
 | Запуск | собранный бинарь | Окно открылось, фронтенд ответил | `wails3 task smoke` |
+
+Скиллы агентов лежат в `.agents/skills/`, а Claude Code видит их через относительные симлинки `.claude/skills/<имя>`. На Windows Git создаёт симлинки только с `git config core.symlinks true` (и правом их создавать — режим разработчика или администратор); без этого на месте симлинка будет текстовый файл с путём: тесты его принимают, но Claude Code скиллов не увидит. Клонировать с симлинками: `git clone -c core.symlinks=true …`.
 
 `wails3 task check` запускает всё, кроме сквозных сценариев, гонок, привязок и smoke; их запускает CI (см. [ci.md](ci.md)). Браузер для сквозных сценариев ставится один раз: `yarn playwright install chromium --no-shell` в `frontend/`.
 

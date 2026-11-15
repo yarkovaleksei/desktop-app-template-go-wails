@@ -60,6 +60,11 @@ var Areas = []kitdocs.Area{
 		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod", "README.md", "README.en.md", "docs/README.md"},
 	},
 	{
+		Title: "Инструкции для агентов",
+		Docs:  []string{"AGENTS.md", "CLAUDE.md"},
+		Paths: []string{".agents/skills", ".claude/skills", ".claude/launch.json"},
+	},
+	{
 		Title: "Инициализация шаблона",
 		Docs:  []string{"README.md#как-начать-проект-из-шаблона", "README.en.md#starting-a-project-from-the-template"},
 	},

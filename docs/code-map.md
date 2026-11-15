@@ -73,6 +73,12 @@
 
 Ещё: [`.github/workflows/docs.yml`](../.github/workflows/docs.yml), [`.github/actionlint.yaml`](../.github/actionlint.yaml), [`go.mod`](../go.mod), [`README.md`](../README.md), [`README.en.md`](../README.en.md), [`docs/README.md`](README.md).
 
+## Инструкции для агентов
+
+Документы: [AGENTS.md](../AGENTS.md), [CLAUDE.md](../CLAUDE.md).
+
+Ещё: [`.agents/skills`](../.agents/skills), [`.claude/skills`](../.claude/skills), [`.claude/launch.json`](../.claude/launch.json).
+
 ## Инициализация шаблона
 
 Документы: [README.md#как-начать-проект-из-шаблона](../README.md#как-начать-проект-из-шаблона), [README.en.md#starting-a-project-from-the-template](../README.en.md#starting-a-project-from-the-template).
