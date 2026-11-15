@@ -67,6 +67,16 @@ tasks:
         grep -q '"passed": true' "{{.SMOKE_DIR}}/report.json"
       - echo "smoke пройден, отчёт {{.SMOKE_DIR}}/report.json"
 
+  smoke:desktop:
+    summary: Linux — запустить окно как из меню, через пользовательский systemd (BIN — по умолчанию /usr/bin/desktop-app, SECONDS — 8)
+    # Окно на несколько секунд появится на экране. На macOS и Windows такой
+    # проверки нет: задача только сообщает об этом.
+    cmds:
+      - cmd: bash scripts/smoke-desktop.sh "{{.BIN | default "/usr/bin/desktop-app"}}" "{{.SECONDS | default "8"}}"
+        platforms: [linux]
+      - cmd: echo "smoke:desktop есть только для Linux; на {{OS}} проверьте запуск из меню вручную"
+        platforms: [darwin, windows]
+
   dev:
     summary: Окно в режиме разработки в .task/dev-home; REAL=true — на настоящих каталогах пользователя
     # Настройки, журнал и кэш разработки живут в .task/dev-home и не смешиваются
