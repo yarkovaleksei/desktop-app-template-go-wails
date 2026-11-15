@@ -14,6 +14,8 @@ const (
 	CodeSettingsNewerVersion = "settings.newer-version"
 	CodeSettingsWrite        = "settings.write-failed"
 	CodeOpenLogFolder        = "app.open-log-folder-failed"
+	CodeAutostart            = "autostart.failed"
+	CodeAutostartUnavailable = "autostart.unavailable"
 )
 
 // toError переводит ошибку ядра в *apperr.Error для фронтенда. Известные

@@ -13,11 +13,13 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/yarkovaleksei/go-desktop-kit/appdirs"
 	"github.com/yarkovaleksei/go-desktop-kit/applog"
+	"github.com/yarkovaleksei/go-desktop-kit/autostart"
 	"github.com/yarkovaleksei/go-desktop-kit/smoke"
 	"github.com/yarkovaleksei/go-desktop-kit/updater"
 	"github.com/yarkovaleksei/go-desktop-kit/wailsx"
@@ -68,6 +70,9 @@ func run() int {
 	showVersion := flag.Bool("version", false, "напечатать версию и выйти")
 	smokeReport := flag.String("smoke-report", "", "проверка запуска: дождаться ответа фронтенда, записать отчёт JSON в этот файл и выйти")
 	smokeTimeout := flag.Duration("smoke-timeout", defaultSmokeTimeout, "сколько проверка запуска ждёт ответа фронтенда")
+	// Значение читает wailsx.StartHidden из аргументов; флаг объявлен, чтобы
+	// разбор аргументов его принимал и показывал в -help.
+	flag.Bool(strings.TrimPrefix(wailsx.HiddenFlag, "--"), false, "запуск без окна, сразу в трей: так стартует автозапуск (D-034)")
 	flag.Parse()
 
 	format := detectFormat()
@@ -103,7 +108,8 @@ func run() int {
 	}
 
 	store := settings.New(filepath.Join(dirs.Config, "settings.json"))
-	if _, err := store.Open(); err != nil {
+	initial, err := store.Open()
+	if err != nil {
 		log.Warn("настройки не прочитаны, действуют умолчания", "path", store.Path(), "error", err)
 	}
 
@@ -141,6 +147,12 @@ func run() int {
 			if desk != nil {
 				desk.settingsChanged(v)
 			}
+		},
+		Autostart: func() autostart.Manager {
+			if desk == nil {
+				return nil
+			}
+			return desk.autostart
 		},
 	})
 
@@ -188,6 +200,12 @@ func run() int {
 		MinWidth:  windowMinWidth,
 		MinHeight: windowMinHeight,
 		URL:       "/",
+		// Автозапуск (--hidden) при включённой работе в фоне и доступном трее —
+		// сразу в трей, без окна; иначе окно показывается (D-034).
+		Hidden: check == nil && wailsx.StartHidden(os.Args[1:], initial.Background),
+	}
+	if windowOptions.Hidden {
+		log.Info("запуск без окна: работа в фоне, окно откроется из трея")
 	}
 	wailsx.RestoreWindow(wailsApp, &windowOptions, windowFile)
 	window = wailsApp.Window.NewWithOptions(windowOptions)

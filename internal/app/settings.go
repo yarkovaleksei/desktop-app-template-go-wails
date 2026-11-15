@@ -3,6 +3,8 @@ package app
 import (
 	"log/slog"
 
+	"github.com/yarkovaleksei/go-desktop-kit/apperr"
+	"github.com/yarkovaleksei/go-desktop-kit/autostart"
 	"github.com/yarkovaleksei/go-desktop-kit/wailsx"
 	"github.com/yarkovaleksei/go-desktop-kit/wire"
 
@@ -26,6 +28,10 @@ type SettingsOptions struct {
 	// OnChange вызывается после успешного Save, до события, — Go-стороне
 	// (язык меню трея, фоновая проверка обновлений).
 	OnChange func(settings.Settings)
+	// Autostart возвращает менеджер автозапуска. Он создаётся после
+	// приложения Wails, поэтому передаётся функцией; nil или nil-результат —
+	// автозапуск недоступен (smoke-режим).
+	Autostart func() autostart.Manager
 }
 
 // SettingsService читает и сохраняет настройки.
@@ -66,4 +72,43 @@ func (s *SettingsService) Save(v settings.Settings) (SettingsView, error) {
 	}
 	s.o.Emit(EventSettingsChanged, v)
 	return wire.Fill(SettingsView{Settings: v}), nil
+}
+
+// Autostart сообщает, включён ли запуск при входе в систему. Состояние
+// читается из ОС, в настройках не хранится: пользователь мог выключить
+// запись системными средствами.
+func (s *SettingsService) Autostart() (bool, error) {
+	m := s.autostart()
+	if m == nil {
+		return false, nil
+	}
+	on, err := m.Enabled()
+	if err != nil {
+		s.o.Log.Warn("состояние автозапуска не прочитано", "error", err)
+		return false, toError(err, CodeAutostart)
+	}
+	return on, nil
+}
+
+// SetAutostart включает или выключает запуск при входе в систему. Запуск
+// идёт с флагом --hidden: окно не показывается, если включена работа в фоне
+// и есть трей (D-034).
+func (s *SettingsService) SetAutostart(on bool) error {
+	m := s.autostart()
+	if m == nil {
+		return apperr.New(CodeAutostartUnavailable)
+	}
+	if err := m.SetEnabled(on); err != nil {
+		s.o.Log.Warn("автозапуск не изменён", "on", on, "error", err)
+		return toError(err, CodeAutostart)
+	}
+	s.o.Log.Info("автозапуск", "on", on)
+	return nil
+}
+
+func (s *SettingsService) autostart() autostart.Manager {
+	if s.o.Autostart == nil {
+		return nil
+	}
+	return s.o.Autostart()
 }

@@ -19,6 +19,15 @@ import * as settings$0 from "../settings/models.js";
 import * as $models from "./models.js";
 
 /**
+ * Autostart сообщает, включён ли запуск при входе в систему. Состояние
+ * читается из ОС, в настройках не хранится: пользователь мог выключить
+ * запись системными средствами.
+ */
+export function Autostart(): $CancellablePromise<boolean> {
+    return $Call.ByID(3710131359);
+}
+
+/**
  * Get возвращает текущие настройки. Испорченный файл не ошибка вызова: экран
  * показывает умолчания и признак Broken.
  */
@@ -32,4 +41,13 @@ export function Get(): $CancellablePromise<$models.SettingsView> {
  */
 export function Save(v: settings$0.Settings): $CancellablePromise<$models.SettingsView> {
     return $Call.ByID(1604618135, v);
+}
+
+/**
+ * SetAutostart включает или выключает запуск при входе в систему. Запуск
+ * идёт с флагом --hidden: окно не показывается, если включена работа в фоне
+ * и есть трей (D-034).
+ */
+export function SetAutostart(on: boolean): $CancellablePromise<void> {
+    return $Call.ByID(1646600959, on);
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/yarkovaleksei/go-desktop-kit/appdirs"
 	"github.com/yarkovaleksei/go-desktop-kit/apperr"
 	"github.com/yarkovaleksei/go-desktop-kit/applog"
+	"github.com/yarkovaleksei/go-desktop-kit/autostart"
 	"github.com/yarkovaleksei/go-desktop-kit/updater"
 
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/appinfo"
@@ -188,5 +189,59 @@ func TestSettingsBrokenFile(t *testing.T) {
 func TestToErrorNil(t *testing.T) {
 	if err := toError(nil, "x"); err != nil {
 		t.Errorf("toError(nil) = %#v", err)
+	}
+}
+
+type fakeAutostart struct {
+	on  bool
+	err error
+}
+
+func (f *fakeAutostart) Enabled() (bool, error) { return f.on, f.err }
+func (f *fakeAutostart) SetEnabled(on bool) error {
+	if f.err != nil {
+		return f.err
+	}
+	f.on = on
+	return nil
+}
+
+func TestSettingsAutostart(t *testing.T) {
+	log, _ := bufLog()
+	m := &fakeAutostart{}
+	s := NewSettingsService(SettingsOptions{Log: log, Autostart: func() autostart.Manager { return m }})
+	if on, err := s.Autostart(); on || err != nil {
+		t.Fatalf("начальное состояние: %v, %v", on, err)
+	}
+	if err := s.SetAutostart(true); err != nil {
+		t.Fatalf("SetAutostart(true): %v", err)
+	}
+	if on, err := s.Autostart(); !on || err != nil || !m.on {
+		t.Errorf("после включения: %v, %v (менеджер %v)", on, err, m.on)
+	}
+	if err := s.SetAutostart(false); err != nil || m.on {
+		t.Errorf("после выключения: %v (менеджер %v)", err, m.on)
+	}
+
+	m.err = errors.New("нет доступа к каталогу")
+	var ae *apperr.Error
+	if _, err := s.Autostart(); !errors.As(err, &ae) || ae.Code != CodeAutostart {
+		t.Errorf("ошибка чтения: %v", err)
+	}
+	if err := s.SetAutostart(true); !errors.As(err, &ae) || ae.Code != CodeAutostart {
+		t.Errorf("ошибка записи: %v", err)
+	}
+}
+
+func TestSettingsAutostartUnavailable(t *testing.T) {
+	for name, f := range map[string]func() autostart.Manager{"без функции": nil, "nil-менеджер": func() autostart.Manager { return nil }} {
+		s := NewSettingsService(SettingsOptions{Autostart: f})
+		if on, err := s.Autostart(); on || err != nil {
+			t.Errorf("%s: Autostart = %v, %v", name, on, err)
+		}
+		var ae *apperr.Error
+		if err := s.SetAutostart(true); !errors.As(err, &ae) || ae.Code != CodeAutostartUnavailable {
+			t.Errorf("%s: SetAutostart = %v", name, err)
+		}
 	}
 }

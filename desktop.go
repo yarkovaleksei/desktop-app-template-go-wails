@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/yarkovaleksei/go-desktop-kit/autostart"
 	"github.com/yarkovaleksei/go-desktop-kit/wailsx"
 
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/app"
@@ -30,7 +31,7 @@ var (
 const settingsPage = "/settings"
 
 // desktop связывает приложение с рабочим столом: трей и работа в фоне,
-// завершение по сигналу. В smoke-режиме не создаётся.
+// автозапуск, завершение по сигналу. В smoke-режиме не создаётся.
 type desktop struct {
 	app     *application.App
 	window  *application.WebviewWindow
@@ -38,8 +39,9 @@ type desktop struct {
 	updates *wailsx.UpdatesService
 	log     *slog.Logger
 
-	tray *wailsx.Tray
-	quit func()
+	tray      *wailsx.Tray
+	quit      func()
+	autostart autostart.Manager
 }
 
 // setupDesktop добавляет трей и обработку SIGINT и SIGTERM. Вызывается после
@@ -56,6 +58,14 @@ func setupDesktop(a *application.App, w *application.WebviewWindow, store *setti
 		Tooltip:      appinfo.Name,
 		Items:        d.trayItems,
 		HideOnClose:  func() bool { return d.settings().Background },
+	})
+	// Автозапуск стартует приложение с --hidden. Описание записи — на языке
+	// запуска; на Linux значок берётся из темы по слагу (.desktop пакета).
+	d.autostart = wailsx.Autostart(a, autostart.Entry{
+		Slug:    appinfo.Slug,
+		Name:    appinfo.Name,
+		Comment: texts.T(d.lang(), texts.AutostartComment, nil),
+		Icon:    appinfo.Slug,
 	})
 	d.handleSignals()
 	return d
