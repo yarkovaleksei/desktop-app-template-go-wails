@@ -25,7 +25,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title:    "Рабочий стол: трей, автозапуск, уведомления, фоновая проверка",
-		Docs:     []string{"README.md"},
+		Docs:     []string{"docs/desktop.md"},
 		Packages: []string{"internal/updatecheck"},
 		Paths:    []string{"desktop.go", "build/trayicon.png", "build/trayicon-template.png"},
 	},
