@@ -79,6 +79,12 @@
 
 Ещё: [`.agents/skills`](../.agents/skills), [`.claude/skills`](../.claude/skills), [`.claude/launch.json`](../.claude/launch.json).
 
+## План проекта
+
+Документы: [spec/AGENTS.md](../spec/AGENTS.md), [spec/README.md](../spec/README.md).
+
+Ещё: [`spec`](../spec).
+
 ## Инициализация шаблона
 
 Документы: [README.md#как-начать-проект-из-шаблона](../README.md#как-начать-проект-из-шаблона), [README.en.md#starting-a-project-from-the-template](../README.en.md#starting-a-project-from-the-template).

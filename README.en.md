@@ -63,6 +63,7 @@ frontend/             React + MUI: src/ (api, store, pages, i18n, theme), e2e/, 
 build/                Wails configuration, icons, Linux, Windows and macOS packages
 scripts/              icon (icon generator), smoke-desktop.sh
 docs/                 guides and the code map
+spec/                 project plan: rules, stages, decisions, backlog, journal (in Russian)
 .github/              check, docs, release, pages workflows; issue and PR templates
 Taskfile.yml          tasks
 ```

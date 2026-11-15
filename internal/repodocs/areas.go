@@ -65,6 +65,11 @@ var Areas = []kitdocs.Area{
 		Paths: []string{".agents/skills", ".claude/skills", ".claude/launch.json"},
 	},
 	{
+		Title: "План проекта",
+		Docs:  []string{"spec/AGENTS.md", "spec/README.md"},
+		Paths: []string{"spec"},
+	},
+	{
 		Title: "Инициализация шаблона",
 		Docs:  []string{"README.md#как-начать-проект-из-шаблона", "README.en.md#starting-a-project-from-the-template"},
 	},
