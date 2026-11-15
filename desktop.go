@@ -13,12 +13,14 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/services/notifications"
 	"github.com/yarkovaleksei/go-desktop-kit/autostart"
+	"github.com/yarkovaleksei/go-desktop-kit/updater"
 	"github.com/yarkovaleksei/go-desktop-kit/wailsx"
 
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/app"
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/appinfo"
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/settings"
 	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/texts"
+	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/updatecheck"
 )
 
 // Значок трея. На macOS — шаблонное изображение: строка меню перекрашивает
@@ -34,8 +36,8 @@ var (
 const settingsPage = "/settings"
 
 // desktop связывает приложение с рабочим столом: трей и работа в фоне,
-// автозапуск, уведомления, завершение по сигналу. В smoke-режиме не
-// создаётся.
+// автозапуск, уведомления, фоновая проверка обновлений, завершение по
+// сигналу. В smoke-режиме не создаётся.
 type desktop struct {
 	app     *application.App
 	window  *application.WebviewWindow
@@ -50,6 +52,8 @@ type desktop struct {
 	notifications *notifications.NotificationService
 	notifier      *wailsx.Notifier
 	askAuth       sync.Once
+
+	updateLoop *updatecheck.Loop
 }
 
 // setupDesktop добавляет трей и обработку SIGINT и SIGTERM. Вызывается после
@@ -58,7 +62,10 @@ type desktop struct {
 //
 // ns — сервис уведомлений Wails, уже зарегистрированный в
 // application.Options.Services.
-func setupDesktop(a *application.App, w *application.WebviewWindow, store *settings.Store, updates *wailsx.UpdatesService, ns *notifications.NotificationService, log *slog.Logger) *desktop {
+//
+// format — формат пакета сборки: без него фоновая проверка обновлений не
+// запускается.
+func setupDesktop(a *application.App, w *application.WebviewWindow, store *settings.Store, updates *wailsx.UpdatesService, ns *notifications.NotificationService, format updater.Format, log *slog.Logger) *desktop {
 	d := &desktop{app: a, window: w, store: store, updates: updates, notifications: ns, log: log}
 	if !wailsx.TrayAvailable() {
 		log.Warn("трей недоступен: закрытие окна завершает приложение, работа в фоне не действует")
@@ -81,6 +88,16 @@ func setupDesktop(a *application.App, w *application.WebviewWindow, store *setti
 	// Нажатие на уведомление показывает окно на странице настроек: оттуда
 	// ставится обновление, о котором уведомление сообщает.
 	d.notifier = wailsx.NewNotifier(ns, appinfo.Slug, func(map[string]any) { d.openSettings() })
+	// Фоновая проверка обновлений — по настройке (D-031); смена настройки
+	// включает и выключает её без перезапуска (settingsChanged).
+	d.updateLoop = updatecheck.New(updatecheck.Options{
+		Check:  updates.Check,
+		Notify: d.notifyUpdate,
+		Format: format,
+		Log:    log,
+	})
+	d.updateLoop.Set(d.settings().AutoCheckUpdates)
+	a.OnShutdown(d.updateLoop.Stop)
 	d.handleSignals()
 	return d
 }
@@ -140,10 +157,21 @@ func (d *desktop) notify(title, body string) {
 	}
 }
 
+// notifyUpdate сообщает о новой версии; нажатие на уведомление откроет
+// страницу настроек, где обновление ставится.
+func (d *desktop) notifyUpdate(version string) {
+	lang := d.lang()
+	d.notify(
+		texts.T(lang, texts.UpdateAvailableTitle, nil),
+		texts.T(lang, texts.UpdateAvailableBody, map[string]string{"version": version}),
+	)
+}
+
 // settingsChanged — настройки сохранены: меню трея перестраивается на
-// новом языке.
-func (d *desktop) settingsChanged(settings.Settings) {
+// новом языке, фоновая проверка обновлений включается или выключается.
+func (d *desktop) settingsChanged(v settings.Settings) {
 	d.tray.Refresh()
+	d.updateLoop.Set(v.AutoCheckUpdates)
 }
 
 // handleSignals завершает приложение по SIGINT и SIGTERM (выход из сеанса,

@@ -223,7 +223,7 @@ func run() int {
 	// Трей, сигналы и остальная связка с рабочим столом мешали бы проверке
 	// запуска: в smoke-режиме их нет.
 	if check == nil {
-		desk = setupDesktop(wailsApp, window, store, updates, notifier, log)
+		desk = setupDesktop(wailsApp, window, store, updates, notifier, format, log)
 	}
 
 	if check != nil {
