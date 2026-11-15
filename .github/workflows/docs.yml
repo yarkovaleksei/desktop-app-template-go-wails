@@ -1,5 +1,6 @@
-# Сверка документов и устройства репозитория с кодом: имена приложения вне Go,
-# коды ошибок и тексты, границы Wails, метки пакетов (internal/archtest).
+# Сверка документов и устройства репозитория с кодом: ссылки, пути и команды в
+# документах, карта кода (internal/repodocs); имена приложения вне Go, коды
+# ошибок и тексты, границы Wails, метки пакетов (internal/archtest).
 # check.yml не запускается на изменения только документов, поэтому эта
 # проверка — отдельный лёгкий workflow на любые изменения. Пакетам проверки
 # не нужны CGO, GTK, Node и frontend/dist.
@@ -31,4 +32,4 @@ jobs:
           go-version-file: go.mod
 
       - name: Сверка
-        run: go test -count=1 ./internal/archtest
+        run: go test -count=1 ./internal/repodocs ./internal/archtest

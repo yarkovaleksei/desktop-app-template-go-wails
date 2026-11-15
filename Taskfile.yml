@@ -198,12 +198,24 @@ tasks:
       - cd frontend && yarn format
 
   check:
-    summary: Все проверки перед коммитом — зависимости, тесты, типы, линтеры
+    summary: Все проверки перед коммитом — зависимости, тесты, типы, линтеры, документы
     cmds:
       - task: deps
       - task: test
       - task: typecheck
       - task: lint
+      - task: check:docs
+
+  check:docs:
+    summary: Документы и карта кода — ссылки, якоря, пути, задачи и скрипты в Markdown, актуальность docs/code-map.md
+    # Пакету проверки не нужны фронтенд и CGO: задача работает и без deps.
+    cmds:
+      - go test -count=1 ./internal/repodocs
+
+  docs:map:
+    summary: Перегенерировать docs/code-map.md из internal/repodocs/areas.go и комментариев пакетов и страниц
+    cmds:
+      - go test -count=1 ./internal/repodocs -run TestCodeMap -update
 
   check:race:
     summary: Тесты ядра под детектором гонок
