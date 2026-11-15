@@ -35,6 +35,11 @@ var nameUses = []nameUse{
 	{"build/linux/" + appinfo.Slug + ".desktop", regexp.MustCompile(`(?m)^Comment=(.+)$`), appinfo.Description, "Description"},
 	{"build/linux/" + appinfo.Slug + ".desktop", regexp.MustCompile(`(?m)^Exec=(\S+)`), appinfo.Slug, "Slug"},
 	{"build/linux/" + appinfo.Slug + ".desktop", regexp.MustCompile(`(?m)^Icon=(\S+)`), appinfo.Slug, "Slug"},
+	{"build/linux/apparmor/" + appinfo.Slug, regexp.MustCompile(`(?m)^profile (\S+) `), appinfo.Slug, "Slug"},
+	{"build/linux/apparmor/" + appinfo.Slug, regexp.MustCompile(`(?m)^profile \S+ /usr/bin/(\S+) `), appinfo.Slug, "Slug"},
+	{"build/linux/apparmor/" + appinfo.Slug, regexp.MustCompile(`<local/([^>]+)>`), appinfo.Slug, "Slug"},
+	{"build/linux/nfpm/scripts/postinstall.sh", regexp.MustCompile(`/etc/apparmor\.d/([a-z0-9-]+)`), appinfo.Slug, "Slug"},
+	{"build/linux/nfpm/scripts/preremove.sh", regexp.MustCompile(`/etc/apparmor\.d/([a-z0-9-]+)`), appinfo.Slug, "Slug"},
 	{"scripts/smoke-desktop.sh", regexp.MustCompile(`(?m)^slug="([^"]*)"`), appinfo.Slug, "Slug"},
 	{"scripts/smoke-desktop.sh", regexp.MustCompile(`(?m)\b([A-Z0-9_]+)_HOME="`), appinfo.EnvPrefix, "EnvPrefix"},
 }

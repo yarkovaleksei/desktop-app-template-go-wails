@@ -1,0 +1,18 @@
+# Профиль AppArmor для /usr/bin/desktop-app. Ничего не ограничивает
+# (flags=(unconfined)): он нужен только ради правила userns. В Ubuntu 23.10+
+# AppArmor запрещает программам без профиля создавать user namespace, а
+# WebKitGTK запускает в нём свою песочницу через bubblewrap. Без профиля окно,
+# открытое из меню, падает при старте. Так же устроены профили Chrome и VS Code.
+# Ставится только пакетом deb: Fedora живёт на SELinux, в Arch AppArmor не
+# включён по умолчанию. AppImage ставит свой профиль загрузчиком
+# appimage-bootstrap.
+
+abi <abi/4.0>,
+include <tunables/global>
+
+profile desktop-app /usr/bin/desktop-app flags=(unconfined) {
+  userns,
+
+  # Местные дополнения. Подробности — в local/README.
+  include if exists <local/desktop-app>
+}

@@ -32,6 +32,14 @@ contents:
     dst: "/usr/share/applications/desktop-app.desktop"
     file_info:
       mode: 0644
+  # Профиль AppArmor с правилом userns для песочницы WebKitGTK. Только в
+  # deb: Fedora живёт на SELinux, в Arch AppArmor не включён по умолчанию.
+  - src: "./build/linux/apparmor/desktop-app"
+    dst: "/etc/apparmor.d/desktop-app"
+    type: config
+    packager: deb
+    file_info:
+      mode: 0644
   # Метка формата: deb, rpm и пакет Arch ставят один и тот же бинарь, и по
   # ней приложение знает, какой пакет скачивать при обновлении.
   - src: "./build/linux/nfpm/package-format/deb"
@@ -69,3 +77,4 @@ overrides:
 
 scripts:
   postinstall: "./build/linux/nfpm/scripts/postinstall.sh"
+  preremove: "./build/linux/nfpm/scripts/preremove.sh"
