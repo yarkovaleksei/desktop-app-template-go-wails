@@ -43,6 +43,11 @@ tasks:
     cmds:
       - task: "{{.GOOS}}:run"
 
+  bindings:
+    summary: Сгенерировать TypeScript-привязки сервисов и событий во frontend/bindings (коммитятся)
+    cmds:
+      - task: common:generate:bindings
+
   dev:
     summary: Окно в режиме разработки с перезагрузкой фронтенда
     cmds:
