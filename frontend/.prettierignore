@@ -4,3 +4,5 @@ node_modules
 coverage
 .yarn
 yarn.lock
+playwright-report
+test-results

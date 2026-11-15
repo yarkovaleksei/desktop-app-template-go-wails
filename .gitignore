@@ -12,6 +12,8 @@ build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
 frontend/node_modules/
 frontend/dist/
 frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
 frontend/*.tsbuildinfo
 
 # yarn 4: в репозитории только конфиг и lock, без кэша и PnP

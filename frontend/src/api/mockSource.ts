@@ -26,6 +26,7 @@ export interface MockOptions {
 }
 
 const VERSION = "v1.0.0";
+
 const PACKAGE_SIZE = 48 * 1024 * 1024;
 const DOWNLOAD_STEPS = 5;
 
@@ -34,6 +35,43 @@ const defaultSettings = (): Settings => ({
   background: false,
   autoCheckUpdates: false,
 });
+
+/**
+ * Начальное состояние моков из параметров адреса — так сценарии Playwright задают
+ * его без правки кода: `/?lang=en&theme=dark&update=ready&format=dmg#/settings`.
+ * Параметры: lang, theme (настройки), format (пусто — сборка из исходников),
+ * tray=0, broken=1, autostart=1, autostart=unavailable, background=1, autocheck=1,
+ * latest, update (состояние), error (код ошибки проверки), delay (мс).
+ */
+export function mockOptionsFromSearch(search: string): MockOptions {
+  const q = new URLSearchParams(search);
+  const opts: MockOptions = {};
+  const settings: Partial<Settings> = {};
+  const ui: Partial<Settings["ui"]> = {};
+  const lang = q.get("lang");
+  if (lang !== null) ui.language = lang;
+  const theme = q.get("theme");
+  if (theme !== null) ui.theme = theme;
+  if (lang !== null || theme !== null) settings.ui = { ...defaultSettings().ui, ...ui };
+  if (q.has("background")) settings.background = q.get("background") === "1";
+  if (q.has("autocheck")) settings.autoCheckUpdates = q.get("autocheck") === "1";
+  if (Object.keys(settings).length > 0) opts.settings = settings;
+  const format = q.get("format");
+  if (format !== null) opts.format = format as UpdateFormat;
+  if (q.get("tray") === "0") opts.trayAvailable = false;
+  if (q.get("broken") === "1") opts.broken = true;
+  if (q.get("autostart") === "1") opts.autostart = true;
+  if (q.get("autostart") === "unavailable") opts.autostartUnavailable = true;
+  const latest = q.get("latest");
+  if (latest !== null) opts.latest = latest;
+  const update = q.get("update");
+  if (update !== null) opts.updateState = update as UpdateState;
+  const error = q.get("error");
+  if (error !== null) opts.updateError = error;
+  const delay = Number(q.get("delay"));
+  if (q.has("delay") && Number.isFinite(delay)) opts.delay = delay;
+  return opts;
+}
 
 const themes: string[] = Object.values(Theme);
 const languages: string[] = Object.values(Language);

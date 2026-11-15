@@ -78,6 +78,12 @@ tasks:
     cmds:
       - yarn dev --port {{.VITE_PORT}}
 
+  test:e2e:
+    summary: Сквозные сценарии Playwright на моках (Chromium); браузер — yarn playwright install chromium --no-shell
+    dir: frontend
+    cmds:
+      - yarn test:e2e
+
   deps:
     summary: Установить зависимости фронтенда по yarn.lock без изменений
     dir: frontend

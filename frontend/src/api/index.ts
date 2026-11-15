@@ -21,6 +21,6 @@ export async function pickSource(): Promise<DataSource> {
     const { wailsSource } = await import("./wailsSource");
     return wailsSource;
   }
-  const { createMockSource } = await import("./mockSource");
-  return createMockSource();
+  const { createMockSource, mockOptionsFromSearch } = await import("./mockSource");
+  return createMockSource(mockOptionsFromSearch(window.location.search));
 }
