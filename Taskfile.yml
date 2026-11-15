@@ -72,6 +72,12 @@ tasks:
     cmds:
       - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
 
+  ui:
+    summary: Интерфейс в браузере на моках, без Go (yarn dev); адрес — http://127.0.0.1:{{.VITE_PORT}}
+    dir: frontend
+    cmds:
+      - yarn dev --port {{.VITE_PORT}}
+
   deps:
     summary: Установить зависимости фронтенда по yarn.lock без изменений
     dir: frontend

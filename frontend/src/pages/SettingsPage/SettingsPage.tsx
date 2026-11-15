@@ -121,16 +121,19 @@ export function SettingsPage() {
           />
           {!tray && <FormHelperText id="background-help">{t("settings.background.noTray")}</FormHelperText>}
         </div>
-        <FormControlLabel
-          disabled={autostart === null}
-          control={
-            <Switch
-              checked={autostart ?? false}
-              onChange={(e) => void actions.setAutostart(e.target.checked)}
-            />
-          }
-          label={t("settings.autostart")}
-        />
+        {/* Обёртка как у соседних переключателей: Stack обнуляет отрицательный отступ FormControlLabel. */}
+        <div>
+          <FormControlLabel
+            disabled={autostart === null}
+            control={
+              <Switch
+                checked={autostart ?? false}
+                onChange={(e) => void actions.setAutostart(e.target.checked)}
+              />
+            }
+            label={t("settings.autostart")}
+          />
+        </div>
         <div>
           <FormControlLabel
             control={

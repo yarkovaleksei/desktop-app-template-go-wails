@@ -49,16 +49,12 @@ export function AppUpdates() {
 
   return (
     <Stack spacing={1.5}>
-      <Typography variant="body2" color="text.secondary">
-        {t("settings.version", { version: st.current })}
-      </Typography>
-
       {st.state === UpdateState.StateUnsupported && (
         <Alert
           severity="info"
           action={
             <Button color="inherit" onClick={() => void actions.openURL(RELEASES_URL)}>
-              {t("updates.notes")}
+              {t("updates.releases")}
             </Button>
           }
         >

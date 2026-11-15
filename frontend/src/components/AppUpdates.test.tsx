@@ -13,9 +13,13 @@ const button = (name: string | RegExp) => screen.getByRole("button", { name });
 
 describe("AppUpdates", () => {
   it("unsupported: обновление вручную, кнопки проверки нет", async () => {
-    await open(statusOf({ revision: 1, state: UpdateState.StateUnsupported, format: "" as never }));
+    const { source } = await open(
+      statusOf({ revision: 1, state: UpdateState.StateUnsupported, format: "" as never }),
+    );
     expect(screen.getByText("Эта сборка не из пакета и обновляется вручную.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Проверить обновления" })).toBeNull();
+    await userEvent.click(button("Выпуски на GitHub"));
+    expect(source.openURL).toHaveBeenCalledWith(expect.stringMatching(/github\.com\/.+\/releases$/));
   });
 
   it("idle: проверка вызывает источник", async () => {

@@ -51,6 +51,7 @@ export const ru = {
   "updates.upToDate": "Установлена последняя версия {version}",
   "updates.available": "Доступна версия {version}, размер {size}",
   "updates.notes": "Что нового",
+  "updates.releases": "Выпуски на GitHub",
   "updates.download": "Скачать",
   "updates.downloading": "Скачано {received} из {size}",
   "updates.cancel": "Отменить",

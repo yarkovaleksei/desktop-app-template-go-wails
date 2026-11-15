@@ -46,6 +46,7 @@ export const en: Dictionary = {
   "updates.upToDate": "You have the latest version {version}",
   "updates.available": "Version {version} is available, size {size}",
   "updates.notes": "What's new",
+  "updates.releases": "Releases on GitHub",
   "updates.download": "Download",
   "updates.downloading": "Downloaded {received} of {size}",
   "updates.cancel": "Cancel",
