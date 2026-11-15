@@ -37,13 +37,13 @@
 
 ## Интерфейс: каркас
 
-Документы: [docs/development.md#контракт-go--typescript](development.md#контракт-go--typescript), [docs/development.md#ошибки](development.md#ошибки), [docs/development.md#события](development.md#события).
+Документы: [docs/development.md#контракт-go--typescript](development.md#контракт-go--typescript), [docs/development.md#ошибки](development.md#ошибки), [docs/development.md#события](development.md#события), [docs/ui.md](ui.md).
 
 Ещё: [`frontend/src/main.tsx`](../frontend/src/main.tsx), [`frontend/src/app`](../frontend/src/app), [`frontend/src/api`](../frontend/src/api), [`frontend/src/store`](../frontend/src/store), [`frontend/src/i18n`](../frontend/src/i18n), [`frontend/src/theme`](../frontend/src/theme), [`frontend/src/components`](../frontend/src/components), [`frontend/src/logic`](../frontend/src/logic), [`frontend/src/test`](../frontend/src/test), [`frontend/index.html`](../frontend/index.html), [`frontend/package.json`](../frontend/package.json).
 
 ## Интерфейс: страницы
 
-Документы: [docs/development.md#страница](development.md#страница).
+Документы: [docs/development.md#страница](development.md#страница), [docs/ui.md](ui.md).
 
 | Страница | Назначение |
 | --- | --- |
@@ -64,7 +64,7 @@
 
 ## Проверки репозитория
 
-Документы: [docs/development.md#тесты](development.md#тесты).
+Документы: [docs/development.md#тесты](development.md#тесты), [docs/code-style.md](code-style.md).
 
 | Пакет | Назначение |
 | --- | --- |

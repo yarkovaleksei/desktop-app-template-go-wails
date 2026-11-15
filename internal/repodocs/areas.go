@@ -31,7 +31,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title: "Интерфейс: каркас",
-		Docs:  []string{"docs/development.md#контракт-go--typescript", "docs/development.md#ошибки", "docs/development.md#события"},
+		Docs:  []string{"docs/development.md#контракт-go--typescript", "docs/development.md#ошибки", "docs/development.md#события", "docs/ui.md"},
 		Paths: []string{
 			"frontend/src/main.tsx", "frontend/src/app", "frontend/src/api", "frontend/src/store",
 			"frontend/src/i18n", "frontend/src/theme", "frontend/src/components", "frontend/src/logic",
@@ -40,7 +40,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title: "Интерфейс: страницы",
-		Docs:  []string{"docs/development.md#страница"},
+		Docs:  []string{"docs/development.md#страница", "docs/ui.md"},
 		Pages: []string{"HomePage", "SettingsPage"},
 		Paths: []string{"frontend/e2e"},
 	},
@@ -55,7 +55,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title:    "Проверки репозитория",
-		Docs:     []string{"docs/development.md#тесты"},
+		Docs:     []string{"docs/development.md#тесты", "docs/code-style.md"},
 		Packages: []string{"internal/repodocs", "internal/archtest"},
 		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod"},
 	},
