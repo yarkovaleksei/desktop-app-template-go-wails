@@ -30,8 +30,10 @@ type goPackage struct {
 // modulePackages возвращает пакеты модуля шаблона и путь модуля.
 func modulePackages(t *testing.T) (string, []goPackage) {
 	t.Helper()
-	module := strings.TrimSpace(goCmd(t, "list", "-m"))
-	trackSources(t, strings.TrimSpace(goCmd(t, "list", "-m", "-f", "{{.Dir}}")))
+	// Модуль — тот, которому принадлежит этот пакет: в рабочем пространстве
+	// go.work «go list -m» перечислил бы все модули.
+	module, dir, _ := strings.Cut(strings.TrimSpace(goCmd(t, "list", "-f", "{{.Module.Path}} {{.Module.Dir}}", ".")), " ")
+	trackSources(t, dir)
 	out := goCmd(t, "list", "-e", "-json=ImportPath,Deps", module+"/...")
 	var pkgs []goPackage
 	dec := json.NewDecoder(strings.NewReader(out))
