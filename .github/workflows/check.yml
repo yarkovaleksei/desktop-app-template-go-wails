@@ -1,0 +1,188 @@
+# Проверки на трёх ОС: те же задачи wails3 task, что запускает разработчик
+# перед коммитом, затем сборка и запуск окна (smoke). Сквозные сценарии
+# интерфейса — отдельный job e2e на Ubuntu.
+name: check
+
+# Изменения только в документах, сайте, папке spec и шаблонах GitHub
+# проверки не запускают: их сверяет docs.yml. Любой другой файл в том же
+# push — запускает. `**.md` — документы в любой папке.
+on:
+  push:
+    branches: [main]
+    paths: &checked-paths
+      - "**"
+      - "!**.md"
+      - "!docs/**"
+      - "!spec/**"
+      - "!www/**"
+      - "!.github/ISSUE_TEMPLATE/**"
+      - "!.github/pull_request_template.md"
+      - "!.github/workflows/pages.yml"
+      - "!.github/workflows/docs.yml"
+  pull_request:
+    paths: *checked-paths
+  # Ручной запуск: release:plan требует успешного check на HEAD, а после
+  # коммита только с документами check сам не запускается.
+  workflow_dispatch:
+
+# Новый push в ветку PR отменяет устаревшую проверку; push в main и ручные
+# запуски доходят до конца.
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'auto' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    # bash и на Windows: задачи и шаги пишутся один раз; pipefail включён.
+    shell: bash
+
+jobs:
+  check:
+    name: check (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # Ubuntu закреплена: WebKitGTK 6.0 есть начиная с 24.04.
+        os: [ubuntu-24.04, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: yarn через corepack
+        run: corepack enable
+
+      # Wails на Linux собирается через CGO с GTK 4 и WebKitGTK 6.0; xvfb —
+      # экран для smoke.
+      - name: GTK 4, WebKitGTK 6.0, xvfb (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            libgtk-4-dev libwebkitgtk-6.0-dev xvfb
+
+      # Версия CLI — из go.mod: генератор привязок должен совпадать с
+      # библиотекой Wails проекта.
+      - name: wails3
+        run: |
+          version=$(go list -m -f '{{.Version}}' github.com/wailsapp/wails/v3)
+          go install "github.com/wailsapp/wails/v3/cmd/wails3@$version"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Проверки
+        run: wails3 task check
+
+      - name: Привязки совпадают с Go-кодом
+        run: wails3 task check:bindings
+
+      - name: Сборка
+        run: wails3 task build
+
+      # Ubuntu 24.04 запрещает программам без профиля AppArmor создавать user
+      # namespace, а в нём WebKitGTK запускает свою песочницу. Как и пакет
+      # deb, загружаем профиль из build/linux/apparmor — для пути собранного
+      # бинаря. Песочница остаётся включённой.
+      - name: Профиль AppArmor для бинаря (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          if [ "$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null)" != 1 ]; then
+            echo "Ограничения user namespace нет — профиль не нужен."
+            exit 0
+          fi
+          profile="$RUNNER_TEMP/desktop-app.apparmor"
+          sed "s#/usr/bin/desktop-app#$GITHUB_WORKSPACE/bin/desktop-app#" build/linux/apparmor/desktop-app > "$profile"
+          grep -q "$GITHUB_WORKSPACE/bin/desktop-app" "$profile"
+          sudo apparmor_parser -r -T -W "$profile"
+
+      - name: Запуск окна (smoke)
+        id: smoke
+        run: |
+          if [ "$RUNNER_OS" = Linux ]; then
+            xvfb-run -a wails3 task smoke
+          else
+            wails3 task smoke
+          fi
+
+      # Отчёт smoke и журнал приложения из временного DESKTOP_APP_HOME.
+      - name: Отчёт smoke
+        if: failure() && steps.smoke.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-${{ matrix.os }}
+          path: .task/smoke/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
+
+  e2e:
+    name: e2e (Playwright)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # Go нужен только для wails3: сценарии идут на моках в браузере.
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: yarn через corepack
+        run: corepack enable
+
+      - name: wails3
+        run: |
+          version=$(go list -m -f '{{.Version}}' github.com/wailsapp/wails/v3)
+          go install "github.com/wailsapp/wails/v3/cmd/wails3@$version"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Зависимости фронтенда
+        run: wails3 task deps
+
+      # Кэш браузера привязан к установленной версии Playwright: новая версия
+      # скачивает свой Chromium.
+      - name: Версия Playwright
+        id: playwright
+        working-directory: frontend
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}
+
+      # Сценарии идут в полном Chromium (channel: "chromium" в
+      # playwright.config.ts), отдельный headless shell не нужен. Системные
+      # библиотеки браузера ставятся при каждом запуске: кэш их не хранит.
+      - name: Chromium
+        working-directory: frontend
+        run: yarn playwright install --with-deps --no-shell chromium
+
+      - name: Сценарии Playwright
+        id: e2e
+        run: wails3 task test:e2e
+
+      - name: Отчёт Playwright
+        if: failure() && steps.e2e.outcome == 'failure'
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
