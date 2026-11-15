@@ -4,6 +4,7 @@ import type { Dictionary } from "./ru";
 export const en: Dictionary = {
   "nav.home": "Home",
   "nav.settings": "Settings",
+  "nav.label": "Sections",
 
   "home.intro": "A placeholder home page. Replace it with your application's interface.",
   "home.docs": "Project documentation",
@@ -71,6 +72,7 @@ export const en: Dictionary = {
   "crash.body": "The interface ran into an error; a report was written to the log.",
   "crash.reload": "Reload interface",
   "crash.previous": "The previous session, started {at}, ended unexpectedly.",
+  "crash.previousUnknown": "The previous session ended unexpectedly.",
 
   "errors.unknown": "Unknown error: {detail}",
   "errors.app.open-log-folder-failed": "Could not open the log folder: {detail}",

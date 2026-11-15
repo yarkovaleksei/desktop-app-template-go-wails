@@ -7,6 +7,7 @@ import type { Message } from "./index";
 export const ru = {
   "nav.home": "Главная",
   "nav.settings": "Настройки",
+  "nav.label": "Разделы",
 
   "home.intro": "Заготовка главной страницы. Замените её интерфейсом своего приложения.",
   "home.docs": "Документация проекта",
@@ -75,6 +76,7 @@ export const ru = {
   "crash.body": "В интерфейсе произошла ошибка, отчёт записан в журнал.",
   "crash.reload": "Перезагрузить интерфейс",
   "crash.previous": "Прошлый сеанс, начатый {at}, завершился неожиданно.",
+  "crash.previousUnknown": "Прошлый сеанс завершился неожиданно.",
 
   "errors.unknown": "Неизвестная ошибка: {detail}",
   "errors.app.open-log-folder-failed": "Не удалось открыть папку журнала: {detail}",

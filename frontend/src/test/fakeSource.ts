@@ -4,6 +4,7 @@ import { vi } from "vitest";
 import {
   UpdateFormat,
   UpdateState,
+  type Crash,
   type DataSource,
   type Info,
   type Settings,
@@ -31,7 +32,14 @@ export const statusOf = (s: Partial<UpdateStatus> & { revision: number }): Updat
 
 /** Источник с данными по умолчанию; init — начальные значения. */
 export function createFakeSource(
-  init: { info?: Partial<Info>; settings?: Settings; broken?: boolean; autostart?: boolean } = {},
+  init: {
+    info?: Partial<Info>;
+    settings?: Settings;
+    broken?: boolean;
+    autostart?: boolean;
+    crash?: Crash | null;
+    update?: UpdateStatus;
+  } = {},
 ) {
   let settings: Settings = structuredClone(init.settings ?? defaultSettings);
   const broken = init.broken ?? false;
@@ -53,7 +61,7 @@ export function createFakeSource(
     kind: "mock" as const,
     info: vi.fn(async () => ({ ...fakeInfo, ...init.info })),
     frontendReady: vi.fn(async () => {}),
-    previousCrash: vi.fn(async () => null),
+    previousCrash: vi.fn(async (): Promise<Crash | null> => init.crash ?? null),
     reportError: vi.fn(async () => {}),
     openLogFolder: vi.fn(async () => {}),
     getSettings: vi.fn(async () => view()),
@@ -66,7 +74,7 @@ export function createFakeSource(
     setAutostart: vi.fn(async (on: boolean) => {
       autostart = on;
     }),
-    updateStatus: vi.fn(async () => statusOf({ revision: 1 })),
+    updateStatus: vi.fn(async () => init.update ?? statusOf({ revision: 1 })),
     checkUpdate: vi.fn(async () => statusOf({ revision: 2, state: UpdateState.StateChecking })),
     downloadUpdate: vi.fn(async () => statusOf({ revision: 3, state: UpdateState.StateDownloading })),
     cancelUpdate: vi.fn(async () => {}),
