@@ -48,6 +48,25 @@ tasks:
     cmds:
       - task: common:generate:bindings
 
+  smoke:
+    summary: Проверить запуск собранного приложения (сначала build) — окно открылось, фронтенд ответил
+    # Профиль пользователя не трогается: каталоги приложения — во временном
+    # DESKTOP_APP_HOME, отчёт — в .task/smoke/report.json. Путь абсолютный:
+    # относительный appdirs отсчитал бы от домашнего каталога.
+    # SMOKE_TIMEOUT=60s — дольше ждать ответа фронтенда.
+    vars:
+      SMOKE_DIR: '{{.ROOT_DIR}}/.task/smoke'
+      SMOKE_TIMEOUT: '{{.SMOKE_TIMEOUT | default "30s"}}'
+    env:
+      DESKTOP_APP_HOME: '{{.SMOKE_DIR}}/home'
+    cmds:
+      - rm -rf "{{.SMOKE_DIR}}"
+      - mkdir -p "{{.SMOKE_DIR}}/home"
+      - '"./{{.BIN_DIR}}/{{.APP_NAME}}{{exeExt}}" --smoke-report "{{.SMOKE_DIR}}/report.json" --smoke-timeout {{.SMOKE_TIMEOUT}}'
+      - >-
+        grep -q '"passed": true' "{{.SMOKE_DIR}}/report.json"
+      - echo "smoke пройден, отчёт {{.SMOKE_DIR}}/report.json"
+
   dev:
     summary: Окно в режиме разработки с перезагрузкой фронтенда
     cmds:
