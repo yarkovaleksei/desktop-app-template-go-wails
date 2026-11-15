@@ -90,9 +90,10 @@
 | `build/trayicon.png` | 64×64, значок трея Linux и Windows |
 | `build/trayicon-template.png` | 64×64, одноцветный значок строки меню macOS |
 | `build/windows/icon.ico`, `build/darwin/icons.icns` | производные, генерируются |
+| `www/images/favicon.png`, `www/images/icon.png`, `www/images/social.jpg` | картинки сайта: 64×64, 256×256 и 1280×640 ([ci.md](ci.md#сайт)) |
 
-- `wails3 task icons` — нарисовать шаблонную иконку заново и обновить производные; `COLOR=#RRGGBB` задаёт цвет плашки вручную.
-- **Своя иконка.** Положить её в `build/appicon.png` (квадрат 1024×1024, PNG с прозрачностью) и выполнить `wails3 task icons:derive`: обновятся `.ico` и `.icns`, сама иконка не тронется. Значки трея проект рисует сам и кладёт на место `build/trayicon.png` и `build/trayicon-template.png`. После своей иконки `wails3 task icons` больше не запускать — он перерисует шаблонную.
+- `wails3 task icons` — нарисовать шаблонную иконку и картинки сайта заново и обновить производные; `COLOR=#RRGGBB` задаёт цвет плашки вручную.
+- **Своя иконка.** Положить её в `build/appicon.png` (квадрат 1024×1024, PNG с прозрачностью) и выполнить `wails3 task icons:derive`: обновятся `.ico` и `.icns`, сама иконка не тронется. Значки трея и картинки сайта проект рисует сам и кладёт на место `build/trayicon.png`, `build/trayicon-template.png` и в `www/images/`. После своей иконки `wails3 task icons` больше не запускать — он перерисует шаблонную.
 
 ## Проверка пакета
 

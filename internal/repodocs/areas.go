@@ -50,8 +50,13 @@ var Areas = []kitdocs.Area{
 		Packages: []string{"scripts/icon"},
 		Paths: []string{
 			"Taskfile.yml", "build", "scripts/smoke-desktop.sh",
-			".github/workflows/check.yml", ".github/workflows/release.yml", ".github/workflows/pages.yml",
+			".github/workflows/check.yml", ".github/workflows/release.yml",
 		},
+	},
+	{
+		Title: "Сайт",
+		Docs:  []string{"docs/ci.md#сайт"},
+		Paths: []string{"www", ".github/workflows/pages.yml"},
 	},
 	{
 		Title:    "Проверки репозитория",

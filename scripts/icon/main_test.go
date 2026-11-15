@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image"
 	"image/color"
+	_ "image/jpeg"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -154,11 +155,14 @@ func TestPlateColor(t *testing.T) {
 func TestRunDeterministic(t *testing.T) {
 	dirs := []string{t.TempDir(), t.TempDir()}
 	for _, d := range dirs {
-		if err := run("desktop-app", "", d); err != nil {
+		if err := run("desktop-app", "", d, filepath.Join(d, "site")); err != nil {
 			t.Fatal(err)
 		}
 	}
-	for _, name := range []string{appIconFile, trayIconFile, trayIconTemplateFile} {
+	for _, name := range []string{
+		appIconFile, trayIconFile, trayIconTemplateFile,
+		filepath.Join("site", faviconFile), filepath.Join("site", siteIconFile), filepath.Join("site", socialFile),
+	} {
 		a, err := os.ReadFile(filepath.Join(dirs[0], name))
 		if err != nil {
 			t.Fatal(err)
@@ -173,10 +177,54 @@ func TestRunDeterministic(t *testing.T) {
 	}
 
 	bad := filepath.Join(t.TempDir(), "out")
-	if err := run("desktop-app", "#xyz", bad); err == nil {
+	if err := run("desktop-app", "#xyz", bad, bad); err == nil {
 		t.Fatal("недопустимый -color принят")
 	}
 	if _, err := os.Stat(bad); !os.IsNotExist(err) {
 		t.Errorf("при ошибке создан каталог вывода: %v", err)
+	}
+}
+
+// TestRenderSite проверяет размеры и форматы картинок сайта и то, что
+// иконка на картинке для соцсетей стоит по центру.
+func TestRenderSite(t *testing.T) {
+	files, err := renderSite(templatePlate)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]struct {
+		w, h   int
+		format string
+	}{
+		faviconFile:  {faviconSize, faviconSize, "png"},
+		siteIconFile: {siteIconSize, siteIconSize, "png"},
+		socialFile:   {socialWidth, socialHeight, "jpeg"},
+	}
+	if len(files) != len(want) {
+		t.Fatalf("файлов %d, ожидалось %d", len(files), len(want))
+	}
+	for _, f := range files {
+		w, ok := want[f.name]
+		if !ok {
+			t.Fatalf("лишний файл %s", f.name)
+		}
+		cfg, format, err := image.DecodeConfig(bytes.NewReader(f.data))
+		if err != nil {
+			t.Fatalf("%s: %v", f.name, err)
+		}
+		if cfg.Width != w.w || cfg.Height != w.h || format != w.format {
+			t.Errorf("%s: %d×%d %s, ожидалось %d×%d %s", f.name, cfg.Width, cfg.Height, format, w.w, w.h, w.format)
+		}
+	}
+
+	img := renderSocial(socialWidth, socialHeight, templatePlate)
+	// Полоса заголовка окна (0.28–0.43 высоты иконки) — над центром
+	// картинки; угол картинки — светлый фон.
+	size := float64(socialHeight) * socialIconPart
+	if got := img.RGBAAt(socialWidth/2, socialHeight/2-int(0.145*size)); got != white {
+		t.Errorf("полоса заголовка в центре картинки: %v, ожидался белый", got)
+	}
+	if got := img.RGBAAt(0, 0); got.R < 0xe0 || got.A != 0xff {
+		t.Errorf("фон в углу %v, ожидался светлый непрозрачный", got)
 	}
 }

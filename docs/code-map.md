@@ -60,7 +60,13 @@
 | --- | --- |
 | [`scripts/icon`](../scripts/icon) | Icon рисует шаблонную иконку приложения: белое окно на цветной плашке. |
 
-Ещё: [`Taskfile.yml`](../Taskfile.yml), [`build`](../build), [`scripts/smoke-desktop.sh`](../scripts/smoke-desktop.sh), [`.github/workflows/check.yml`](../.github/workflows/check.yml), [`.github/workflows/release.yml`](../.github/workflows/release.yml), [`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
+Ещё: [`Taskfile.yml`](../Taskfile.yml), [`build`](../build), [`scripts/smoke-desktop.sh`](../scripts/smoke-desktop.sh), [`.github/workflows/check.yml`](../.github/workflows/check.yml), [`.github/workflows/release.yml`](../.github/workflows/release.yml).
+
+## Сайт
+
+Документы: [docs/ci.md#сайт](ci.md#сайт).
+
+Ещё: [`www`](../www), [`.github/workflows/pages.yml`](../.github/workflows/pages.yml).
 
 ## Проверки репозитория
 

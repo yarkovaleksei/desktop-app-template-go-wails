@@ -44,6 +44,14 @@ var nameUses = []nameUse{
 	{"build/linux/nfpm/scripts/preremove.sh", regexp.MustCompile(`/etc/apparmor\.d/([a-z0-9-]+)`), appinfo.Slug, "Slug"},
 	{"scripts/smoke-desktop.sh", regexp.MustCompile(`(?m)^slug="([^"]*)"`), appinfo.Slug, "Slug"},
 	{"scripts/smoke-desktop.sh", regexp.MustCompile(`(?m)\b([A-Z0-9_]+)_HOME="`), appinfo.EnvPrefix, "EnvPrefix"},
+	// Сайт. Адрес Pages сверяет TestSiteMeta, имена файлов выпуска — TestSiteAssets.
+	{"www/index.html", regexp.MustCompile(`(?m)^\s*const APP = '([^']*)';`), appinfo.Slug, "Slug"},
+	{"www/index.html", regexp.MustCompile(`(?m)^\s*const REPO = '([^']*)';`), appinfo.Repo, "Repo"},
+	{"www/index.html", regexp.MustCompile(`https://github\.com/([\w.-]+/[\w.-]+)`), appinfo.Repo, "Repo"},
+	{"www/index.html", regexp.MustCompile(`<meta property="og:site_name" content="([^"]*)"`), appinfo.Name, "Name"},
+	{"www/index.html", regexp.MustCompile(`<h1>([^<]*)</h1>`), appinfo.Name, "Name"},
+	{"www/index.html", regexp.MustCompile(`/Applications/([a-z0-9-]+)\.app`), appinfo.Slug, "Slug"},
+	{"www/index.html", regexp.MustCompile(`<code>(?:sudo [a-z]+ (?:install|-U) |chmod \+x )(?:\./)?([a-z0-9-]+)[-_]\*`), appinfo.Slug, "Slug"},
 }
 
 // TestNamesMatchAppinfo сверяет имена приложения в файлах сборки, задачах и

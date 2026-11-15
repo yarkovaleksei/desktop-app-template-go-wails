@@ -19,6 +19,8 @@ vars:
   # Фронтенд ставится и собирается только через yarn 4.
   PACKAGE_MANAGER: "yarn"
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
+  # Порт локального сервера сайта (задача site); тот же — в .claude/launch.json.
+  SITE_PORT: '{{.SITE_PORT | default 8765}}'
   # Целевая ОС для build/package/run. По умолчанию — текущая, переопределяется GOOS.
   GOOS: '{{.GOOS | default OS}}'
   # Версия — из последнего тега vX.Y.Z: у выпуска это сам тег, между тегами —
@@ -123,6 +125,11 @@ tasks:
     cmds:
       - yarn dev --port {{.VITE_PORT}}
 
+  site:
+    summary: Сайт www/ на локальном сервере (нужен python3); адрес — http://127.0.0.1:{{.SITE_PORT}}
+    cmds:
+      - python3 -m http.server {{.SITE_PORT}} --bind 127.0.0.1 --directory www
+
   test:e2e:
     summary: Сквозные сценарии Playwright на моках (Chromium); браузер — yarn playwright install chromium --no-shell
     dir: frontend
@@ -225,9 +232,9 @@ tasks:
       - go test -race ./internal/...
 
   icons:
-    summary: Нарисовать шаблонную иконку из слага (COLOR=#RRGGBB — свой цвет) и обновить производные
+    summary: Нарисовать шаблонную иконку и картинки сайта из слага (COLOR=#RRGGBB — свой цвет) и обновить производные
     cmds:
-      - go run ./scripts/icon -slug "{{.APP_NAME}}" -out build{{if .COLOR}} -color "{{.COLOR}}"{{end}}
+      - go run ./scripts/icon -slug "{{.APP_NAME}}" -out build -site www/images{{if .COLOR}} -color "{{.COLOR}}"{{end}}
       - task: icons:derive
 
   icons:derive:

@@ -5,6 +5,7 @@ import (
 	"hash/fnv"
 	"image"
 	"image/color"
+	"image/draw"
 	"math"
 	"regexp"
 	"strconv"
@@ -187,4 +188,24 @@ func renderTrayTemplate(size int) *image.RGBA {
 		}
 		return color.RGBA{}
 	})
+}
+
+// Картинка для соцсетей: иконка по центру на фоне цвета плашки, разбавленного
+// белым. Текста нет — для него нужен шрифт; проект заменяет картинку своей.
+const (
+	socialTint     = 0.14 // доля цвета плашки в фоне
+	socialIconPart = 0.70 // высота иконки в долях высоты картинки
+)
+
+// renderSocial рисует картинку для соцсетей width×height.
+func renderSocial(width, height int, plate color.RGBA) *image.RGBA {
+	mix := func(c uint8) uint8 { return uint8(math.Round(255 - (255-float64(c))*socialTint)) }
+	bg := color.RGBA{R: mix(plate.R), G: mix(plate.G), B: mix(plate.B), A: 0xff}
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	draw.Draw(img, img.Bounds(), &image.Uniform{C: bg}, image.Point{}, draw.Src)
+	size := int(float64(height) * socialIconPart)
+	icon := renderApp(size, plate)
+	at := image.Pt((width-size)/2, (height-size)/2)
+	draw.Draw(img, icon.Bounds().Add(at), icon, image.Point{}, draw.Over)
+	return img
 }

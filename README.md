@@ -37,6 +37,7 @@ wails3 task dev
 | `wails3 task deps` | Зависимости фронтенда по `yarn.lock` |
 | `wails3 task dev` | Окно в режиме разработки; `REAL=true` — на настоящих каталогах пользователя |
 | `wails3 task ui` | Интерфейс в браузере на моках, без Go |
+| `wails3 task site` | Сайт `www/` на локальном сервере |
 | `wails3 task build`, `wails3 task run` | Бинарь текущей ОС в `bin/` и его запуск |
 | `wails3 task check` | Всё перед коммитом: зависимости, тесты, типы, линтеры, документы |
 | `wails3 task test`, `wails3 task test:go`, `wails3 task test:frontend` | Тесты Go и фронтенда |
@@ -63,6 +64,7 @@ frontend/             React + MUI: src/ (api, store, pages, i18n, theme), e2e/, 
 build/                конфигурация Wails, иконки, пакеты Linux, Windows, macOS
 scripts/              icon (генератор иконки), smoke-desktop.sh
 docs/                 руководства и карта кода
+www/                  сайт проекта: одна страница на двух языках
 spec/                 план проекта: правила ведения, этапы, решения, бэклог, журнал
 .github/              workflows check, docs, release, pages; шаблоны issues и PR
 Taskfile.yml          задачи

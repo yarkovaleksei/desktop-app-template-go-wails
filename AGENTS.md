@@ -77,6 +77,7 @@ Desktop App — десктоп-приложение на Go, Wails 3, React и M
 wails3 task deps            # зависимости фронтенда по yarn.lock
 wails3 task dev             # окно в режиме разработки, каталоги в .task/dev-home
 wails3 task ui              # интерфейс в браузере на моках, без Go
+wails3 task site            # сайт www/ на локальном сервере
 wails3 task check           # всё перед коммитом: зависимости, тесты, типы, линтеры, документы
 wails3 task test:go         # тесты Go (адресно: go test ./internal/<пакет>)
 wails3 task test:frontend   # Vitest (адресно: yarn test <файл> в frontend/)

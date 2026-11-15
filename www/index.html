@@ -1,0 +1,545 @@
+<!doctype html>
+<!--
+  Сайт проекта: одна страница без сборки и внешних зависимостей, стили и
+  скрипт — в этом файле. Как править, проверять и публиковать — docs/ci.md,
+  раздел «Сайт».
+
+  Тексты. Английский записан в разметке: его видит посетитель без
+  JavaScript и поисковик. Словари обоих языков — в блоке <script id="i18n">;
+  элемент с data-i18n="ключ" получает текст ключа, data-i18n-<атрибут> —
+  значение атрибута. Английский словарь повторяет разметку дословно:
+  internal/archtest/www_test.go сверяет разметку со словарём en и наборы
+  ключей en и ru.
+
+  Тексты-заглушки (фраза, возможности, подписи) замените описанием проекта.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.title">Desktop App — desktop application for Linux, macOS and Windows</title>
+  <meta name="description" content="Desktop application on Go, Wails 3, React and MUI. Packages for Linux, macOS and Windows with updates from GitHub Releases." data-i18n-content="meta.description">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f8f7fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121015" media="(prefers-color-scheme: dark)">
+  <link rel="canonical" href="https://yarkovaleksei.github.io/desktop-app-template-go-wails/">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Desktop App">
+  <meta property="og:url" content="https://yarkovaleksei.github.io/desktop-app-template-go-wails/">
+  <meta property="og:title" content="Desktop App — desktop application for Linux, macOS and Windows">
+  <meta property="og:description" content="Desktop application on Go, Wails 3, React and MUI. Packages for Linux, macOS and Windows with updates from GitHub Releases.">
+  <meta property="og:image" content="https://yarkovaleksei.github.io/desktop-app-template-go-wails/images/social.jpg">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="640">
+  <meta property="og:image:alt" content="Desktop App icon: a white window on a coloured plate">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    /* Палитра. --accent — цвет плашки шаблонной иконки (scripts/icon выводит
+       его из слага); со своей иконкой возьмите её основной цвет. */
+    :root {
+      color-scheme: light dark;
+      --accent: #ab2b90;
+      --accent-soft: #f7e9f4;
+      --on-accent: #ffffff;
+      --bg: #f8f7fa;
+      --surface: #ffffff;
+      --text: #1b1620;
+      --muted: #5f5868;
+      --line: #e5e0ea;
+      --code: #f1edf4;
+      --shadow: 0 18px 48px -24px rgba(27, 22, 32, 0.35);
+      --radius: 14px;
+      --wrap: 1120px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #e386cf;
+        --accent-soft: #35202f;
+        --on-accent: #1b1620;
+        --bg: #121015;
+        --surface: #1c1920;
+        --text: #ece8f0;
+        --muted: #a9a2b1;
+        --line: #322c38;
+        --code: #25212a;
+        --shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.8);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Ubuntu, Roboto, "Noto Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); }
+    [hidden] { display: none !important; }
+    code, pre { font-family: ui-monospace, "SFMono-Regular", "Ubuntu Mono", Menlo, Consolas, monospace; }
+    pre {
+      /* Команды переносятся, а не уходят под прокрутку: карточки узкие. */
+      margin: 0; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere;
+      background: var(--code); border: 1px solid var(--line); border-radius: 10px;
+      font-size: 13px; line-height: 1.55;
+    }
+    .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
+
+    /* Шапка */
+    header.top {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    header.top .wrap { display: flex; align-items: center; gap: 20px; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 700; font-size: 18px; white-space: nowrap; }
+    .brand img { width: 32px; height: 32px; }
+    nav.links { display: flex; gap: 20px; margin-left: auto; }
+    nav.links a { color: var(--muted); text-decoration: none; font-size: 15px; }
+    nav.links a:hover { color: var(--text); }
+    @media (max-width: 720px) { nav.links a:not(.gh) { display: none; } }
+    .lang { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+    .lang button {
+      font: inherit; font-size: 13px; font-weight: 600; padding: 4px 10px; cursor: pointer;
+      border: 0; background: transparent; color: var(--muted);
+    }
+    .lang button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+    /* Первый экран */
+    .hero { padding: 64px 0 24px; text-align: center; }
+    .hero img.logo { width: 96px; height: 96px; }
+    .hero h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.1; margin: 12px 0 16px; letter-spacing: -0.02em; }
+    .lead { font-size: clamp(18px, 2.2vw, 21px); color: var(--muted); max-width: 720px; margin: 0 auto 28px; }
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; padding: 12px 22px; border-radius: 999px;
+      font-weight: 600; font-size: 16px; text-decoration: none;
+      border: 1px solid var(--line); color: var(--text); background: var(--surface);
+    }
+    .btn.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+    .btn:hover { filter: brightness(1.06); }
+    .version { color: var(--muted); font-size: 14px; margin: 14px 0 0; min-height: 1.6em; }
+
+    /* Разделы */
+    section { padding: 64px 0; }
+    section.alt { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    h2 { font-size: clamp(26px, 3.6vw, 36px); line-height: 1.2; margin: 0 0 12px; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); max-width: 720px; margin: 0 0 32px; font-size: 18px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; min-width: 0; }
+    section.alt .card { background: var(--bg); }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 16px; }
+
+    /* Возможности */
+    .features { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 1000px) { .features { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 600px) { .features { grid-template-columns: minmax(0, 1fr); } }
+    .mark {
+      width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+      margin-bottom: 14px; font-size: 20px; background: var(--accent-soft); color: var(--accent);
+    }
+
+    /* Снимок окна */
+    figure.shot { margin: 0; }
+    figure.shot img {
+      display: block; width: 100%; height: auto; max-width: 1080px; margin: 0 auto;
+      border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow);
+    }
+    figure.shot figcaption { color: var(--muted); font-size: 14px; text-align: center; margin-top: 14px; }
+
+    /* Установка */
+    .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    @media (max-width: 900px) { .platforms { grid-template-columns: minmax(0, 1fr); } }
+    .platform { scroll-margin-top: 80px; }
+    .platform h3 { font-size: 20px; margin-bottom: 2px; }
+    .platform .req { font-size: 14px; margin-bottom: 14px; }
+    .platform.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .downloads { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .downloads a {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 9px 14px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--bg); color: var(--text); text-decoration: none; font-weight: 600; font-size: 15px;
+    }
+    section.alt .downloads a { background: var(--surface); }
+    .downloads a span { color: var(--muted); font-weight: 400; font-size: 13px; text-align: right; }
+    .downloads a:hover { border-color: var(--accent); }
+    .platform p.note { font-size: 14px; margin-top: 12px; }
+    .platform pre { margin-top: 8px; }
+    .sums { margin: 24px 0 0; color: var(--muted); font-size: 15px; }
+
+    footer { padding: 36px 0 52px; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+    footer a { color: var(--muted); }
+  </style>
+  <!-- Словари. Ключи en и ru совпадают; {os}, {version} и {date} подставляет скрипт. -->
+  <script type="application/json" id="i18n">
+  {
+    "en": {
+      "meta.title": "Desktop App — desktop application for Linux, macOS and Windows",
+      "meta.description": "Desktop application on Go, Wails 3, React and MUI. Packages for Linux, macOS and Windows with updates from GitHub Releases.",
+      "lang.label": "Language",
+      "nav.label": "Sections",
+      "nav.features": "Features",
+      "nav.screenshot": "Screenshot",
+      "nav.install": "Install",
+      "hero.lead": "Desktop application on Go, Wails 3, React and MUI.",
+      "hero.download": "Download",
+      "hero.downloadFor": "Download for {os}",
+      "hero.source": "Source on GitHub",
+      "hero.version": "Version {version} from {date}",
+      "hero.notes": "What's new",
+      "features.title": "Features",
+      "features.sub": "Replace these cards with what your application does.",
+      "features.os.title": "Three systems",
+      "features.os.text": "Native packages for Linux, macOS and Windows from one codebase.",
+      "features.update.title": "Updates",
+      "features.update.text": "Checks the latest release on GitHub, verifies SHA-256 and installs the new version.",
+      "features.theme.title": "Theme and language",
+      "features.theme.text": "Follows the system light or dark theme; the interface speaks English and Russian.",
+      "features.tray.title": "Tray",
+      "features.tray.text": "Keeps working in the background, starts with the system and sends notifications.",
+      "shot.title": "Screenshot",
+      "shot.alt": "Desktop App main window",
+      "shot.caption": "Main window of the application.",
+      "install.title": "Install",
+      "install.sub": "Packages are attached to every release on GitHub. They are not signed: below is how to open them on each system.",
+      "install.linux.req": "x86_64",
+      "install.linux.deb": "Debian, Ubuntu",
+      "install.linux.rpm": "Fedora",
+      "install.linux.arch": "Arch Linux",
+      "install.linux.appimage": "any distribution",
+      "install.linux.note": "deb, rpm and Arch packages install from the file without a key check. Make the AppImage executable and run it; on Ubuntu it asks once for permission to install an AppArmor profile.",
+      "install.mac.req": "macOS 12 or later · Apple Silicon and Intel",
+      "install.mac.dmg": "universal",
+      "install.mac.note": "Open the image and drag the application to Applications. It is not notarized: on first launch choose Open from the Finder context menu, or allow it in System Settings → Privacy & Security → Open Anyway. Or remove the quarantine flag:",
+      "install.windows.req": "Windows 10 and 11 · x64",
+      "install.windows.nsis": "Installer",
+      "install.windows.nsisHint": "for the current user",
+      "install.windows.exe": "Portable",
+      "install.windows.exeHint": "no installation",
+      "install.windows.note": "The installer needs no administrator rights. Neither file is signed: SmartScreen warns about it — choose More info → Run anyway.",
+      "install.sums": "SHA-256 checksums are in SHA256SUMS-linux.txt, SHA256SUMS-macos.txt and SHA256SUMS-windows.txt of the same release. An application installed from a package updates itself from its settings page.",
+      "footer.license": "MIT license",
+      "footer.source": "Source",
+      "footer.releases": "Releases",
+      "footer.issues": "Issues"
+    },
+    "ru": {
+      "meta.title": "Desktop App — десктоп-приложение для Linux, macOS и Windows",
+      "meta.description": "Десктоп-приложение на Go, Wails 3, React и MUI. Пакеты для Linux, macOS и Windows с обновлением из выпусков GitHub.",
+      "lang.label": "Язык",
+      "nav.label": "Разделы",
+      "nav.features": "Возможности",
+      "nav.screenshot": "Снимок",
+      "nav.install": "Установка",
+      "hero.lead": "Десктоп-приложение на Go, Wails 3, React и MUI.",
+      "hero.download": "Скачать",
+      "hero.downloadFor": "Скачать для {os}",
+      "hero.source": "Исходники на GitHub",
+      "hero.version": "Версия {version} от {date}",
+      "hero.notes": "Что нового",
+      "features.title": "Возможности",
+      "features.sub": "Замените эти карточки описанием того, что умеет ваше приложение.",
+      "features.os.title": "Три системы",
+      "features.os.text": "Родные пакеты для Linux, macOS и Windows из одного кода.",
+      "features.update.title": "Обновления",
+      "features.update.text": "Проверяет последний выпуск на GitHub, сверяет SHA-256 и ставит новую версию.",
+      "features.theme.title": "Тема и язык",
+      "features.theme.text": "Следует светлой или тёмной теме системы; интерфейс — на русском и английском.",
+      "features.tray.title": "Трей",
+      "features.tray.text": "Работает в фоне, запускается вместе с системой и присылает уведомления.",
+      "shot.title": "Снимок",
+      "shot.alt": "Главное окно Desktop App",
+      "shot.caption": "Главное окно приложения.",
+      "install.title": "Установка",
+      "install.sub": "Пакеты приложены к каждому выпуску на GitHub. Они не подписаны: ниже — как открыть их на каждой системе.",
+      "install.linux.req": "x86_64",
+      "install.linux.deb": "Debian, Ubuntu",
+      "install.linux.rpm": "Fedora",
+      "install.linux.arch": "Arch Linux",
+      "install.linux.appimage": "любой дистрибутив",
+      "install.linux.note": "Пакеты deb, rpm и Arch ставятся из файла без проверки ключа. AppImage сделайте исполняемым и запустите; на Ubuntu он один раз спросит разрешение поставить профиль AppArmor.",
+      "install.mac.req": "macOS 12 и новее · Apple Silicon и Intel",
+      "install.mac.dmg": "универсальный",
+      "install.mac.note": "Откройте образ и перенесите приложение в «Программы». Оно не нотаризовано: при первом запуске выберите «Открыть» в контекстном меню Finder или разрешите запуск в «Системные настройки» → «Конфиденциальность и безопасность» → «Всё равно открыть». Или снимите карантин:",
+      "install.windows.req": "Windows 10 и 11 · x64",
+      "install.windows.nsis": "Установщик",
+      "install.windows.nsisHint": "для текущего пользователя",
+      "install.windows.exe": "Переносимый",
+      "install.windows.exeHint": "без установки",
+      "install.windows.note": "Установщику не нужны права администратора. Файлы не подписаны: SmartScreen предупредит — «Подробнее» → «Выполнить в любом случае».",
+      "install.sums": "Суммы SHA-256 — в SHA256SUMS-linux.txt, SHA256SUMS-macos.txt и SHA256SUMS-windows.txt того же выпуска. Установленное из пакета приложение обновляется со страницы настроек.",
+      "footer.license": "Лицензия MIT",
+      "footer.source": "Исходники",
+      "footer.releases": "Выпуски",
+      "footer.issues": "Задачи"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><img src="images/icon.png" alt="" width="32" height="32">Desktop App</a>
+      <nav class="links" aria-label="Sections" data-i18n-aria-label="nav.label">
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#screenshot" data-i18n="nav.screenshot">Screenshot</a>
+        <a href="#install" data-i18n="nav.install">Install</a>
+        <a class="gh" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails">GitHub</a>
+      </nav>
+      <!-- Без JavaScript переключатель не работает, поэтому скрыт до запуска скрипта. -->
+      <div class="lang" role="group" aria-label="Language" data-i18n-aria-label="lang.label" hidden>
+        <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ru" lang="ru" aria-pressed="false">RU</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="wrap">
+        <img class="logo" src="images/icon.png" alt="" width="96" height="96">
+        <h1>Desktop App</h1>
+        <p class="lead" data-i18n="hero.lead">Desktop application on Go, Wails 3, React and MUI.</p>
+        <div class="actions">
+          <a class="btn primary" id="hero-download" href="#install" data-i18n="hero.download">Download</a>
+          <a class="btn" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails" data-i18n="hero.source">Source on GitHub</a>
+        </div>
+        <p class="version"><span id="hero-version"></span> <a id="hero-notes" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest" data-i18n="hero.notes" hidden>What's new</a></p>
+      </div>
+    </div>
+
+    <section id="features">
+      <div class="wrap">
+        <h2 data-i18n="features.title">Features</h2>
+        <p class="sub" data-i18n="features.sub">Replace these cards with what your application does.</p>
+        <div class="features">
+          <div class="card"><div class="mark" aria-hidden="true">▣</div><h3 data-i18n="features.os.title">Three systems</h3><p data-i18n="features.os.text">Native packages for Linux, macOS and Windows from one codebase.</p></div>
+          <div class="card"><div class="mark" aria-hidden="true">⟳</div><h3 data-i18n="features.update.title">Updates</h3><p data-i18n="features.update.text">Checks the latest release on GitHub, verifies SHA-256 and installs the new version.</p></div>
+          <div class="card"><div class="mark" aria-hidden="true">◐</div><h3 data-i18n="features.theme.title">Theme and language</h3><p data-i18n="features.theme.text">Follows the system light or dark theme; the interface speaks English and Russian.</p></div>
+          <div class="card"><div class="mark" aria-hidden="true">◔</div><h3 data-i18n="features.tray.title">Tray</h3><p data-i18n="features.tray.text">Keeps working in the background, starts with the system and sends notifications.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt" id="screenshot">
+      <div class="wrap">
+        <h2 data-i18n="shot.title">Screenshot</h2>
+        <figure class="shot">
+          <img src="images/screen-main.png" width="1280" height="837" alt="Desktop App main window" data-i18n-alt="shot.alt" loading="lazy">
+          <figcaption data-i18n="shot.caption">Main window of the application.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="wrap">
+        <h2 data-i18n="install.title">Install</h2>
+        <p class="sub" data-i18n="install.sub">Packages are attached to every release on GitHub. They are not signed: below is how to open them on each system.</p>
+        <!-- Ссылки data-asset ведут на страницу выпусков; скрипт заменяет их прямыми ссылками на вложения последнего выпуска. -->
+        <div class="platforms">
+          <div class="card platform" id="install-linux" data-os="linux">
+            <h3>Linux</h3>
+            <p class="req" data-i18n="install.linux.req">x86_64</p>
+            <div class="downloads">
+              <a data-asset="deb" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest">.deb <span data-i18n="install.linux.deb">Debian, Ubuntu</span></a>
+              <a data-asset="rpm" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest">.rpm <span data-i18n="install.linux.rpm">Fedora</span></a>
+              <a data-asset="arch" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest">.pkg.tar.zst <span data-i18n="install.linux.arch">Arch Linux</span></a>
+              <a data-asset="appimage" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest">.AppImage <span data-i18n="install.linux.appimage">any distribution</span></a>
+            </div>
+            <pre><code>sudo apt install ./desktop-app_*_amd64.deb</code></pre>
+            <pre><code>sudo dnf install ./desktop-app-*.x86_64.rpm</code></pre>
+            <pre><code>sudo pacman -U desktop-app-*-x86_64.pkg.tar.zst</code></pre>
+            <pre><code>chmod +x desktop-app-*-x86_64.AppImage</code></pre>
+            <p class="note" data-i18n="install.linux.note">deb, rpm and Arch packages install from the file without a key check. Make the AppImage executable and run it; on Ubuntu it asks once for permission to install an AppArmor profile.</p>
+          </div>
+          <div class="card platform" id="install-mac" data-os="mac">
+            <h3>macOS</h3>
+            <p class="req" data-i18n="install.mac.req">macOS 12 or later · Apple Silicon and Intel</p>
+            <div class="downloads">
+              <a data-asset="dmg" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest">.dmg <span data-i18n="install.mac.dmg">universal</span></a>
+            </div>
+            <p class="note" data-i18n="install.mac.note">Open the image and drag the application to Applications. It is not notarized: on first launch choose Open from the Finder context menu, or allow it in System Settings → Privacy &amp; Security → Open Anyway. Or remove the quarantine flag:</p>
+            <pre><code>xattr -dr com.apple.quarantine /Applications/desktop-app.app</code></pre>
+          </div>
+          <div class="card platform" id="install-windows" data-os="windows">
+            <h3>Windows</h3>
+            <p class="req" data-i18n="install.windows.req">Windows 10 and 11 · x64</p>
+            <div class="downloads">
+              <a data-asset="nsis" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest"><b data-i18n="install.windows.nsis">Installer</b> <span data-i18n="install.windows.nsisHint">for the current user</span></a>
+              <a data-asset="exe" href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases/latest"><b data-i18n="install.windows.exe">Portable</b> <span data-i18n="install.windows.exeHint">no installation</span></a>
+            </div>
+            <p class="note" data-i18n="install.windows.note">The installer needs no administrator rights. Neither file is signed: SmartScreen warns about it — choose More info → Run anyway.</p>
+          </div>
+        </div>
+        <p class="sums" data-i18n="install.sums">SHA-256 checksums are in SHA256SUMS-linux.txt, SHA256SUMS-macos.txt and SHA256SUMS-windows.txt of the same release. An application installed from a package updates itself from its settings page.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Desktop App</span>
+      <a href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/blob/main/LICENSE" data-i18n="footer.license">MIT license</a>
+      <a href="https://github.com/yarkovaleksei/desktop-app-template-go-wails" data-i18n="footer.source">Source</a>
+      <a href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/releases" data-i18n="footer.releases">Releases</a>
+      <a href="https://github.com/yarkovaleksei/desktop-app-template-go-wails/issues" data-i18n="footer.issues">Issues</a>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // Имена приложения — те же, что в internal/appinfo (Slug, Repo).
+      const APP = 'desktop-app';
+      const REPO = 'yarkovaleksei/desktop-app-template-go-wails';
+
+      // Окончание имени вложения после версии для каждого формата выпуска:
+      // имя — APP, «-» или «_», версия X.Y.Z, окончание. Источник имён —
+      // updater.Naming в go-desktop-kit; internal/archtest/www_test.go сверяет
+      // таблицу с ним и с RELEASE_FORMATS в Taskfile.yml.
+      const SUFFIXES = {
+        deb: '_amd64.deb',
+        rpm: '.x86_64.rpm',
+        arch: '-x86_64.pkg.tar.zst',
+        appimage: '-x86_64.AppImage',
+        dmg: '-macos-universal.dmg',
+        nsis: '-windows-amd64-setup.exe',
+        exe: '-windows-amd64.exe',
+      };
+
+      const OS_LABELS = { linux: 'Linux', mac: 'macOS', windows: 'Windows' };
+      const LANGS = ['en', 'ru'];
+      const LOCALES = { en: 'en-US', ru: 'ru-RU' };
+      const STORAGE_KEY = 'lang';
+      const RELEASES = `https://github.com/${REPO}/releases/`;
+
+      const I18N = JSON.parse(document.getElementById('i18n').textContent);
+      const state = { lang: pickLang(), os: detectOS(), release: null };
+
+      // Язык: сохранённый выбор, иначе язык браузера — русский для ru, иначе английский.
+      function pickLang() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (LANGS.includes(saved)) return saved;
+        } catch {
+          // Хранилище недоступно (приватный режим, запрет cookies): выбор не запоминается.
+        }
+        return (navigator.language || '').toLowerCase().split('-')[0] === 'ru' ? 'ru' : 'en';
+      }
+
+      function saveLang(lang) {
+        try {
+          localStorage.setItem(STORAGE_KEY, lang);
+        } catch {
+          // См. pickLang.
+        }
+      }
+
+      function detectOS() {
+        const platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+        const ua = navigator.userAgent || '';
+        if (/win/i.test(platform)) return 'windows';
+        if (/mac/i.test(platform) && !/iphone|ipad/i.test(ua)) return 'mac';
+        if (/linux/i.test(platform) && !/android/i.test(ua)) return 'linux';
+        return '';
+      }
+
+      // t — текст ключа на текущем языке с подстановкой {имя}.
+      function t(key, vars) {
+        const text = I18N[state.lang][key] ?? I18N.en[key] ?? key;
+        return text.replace(/\{(\w+)\}/g, (m, name) => (vars && name in vars ? vars[name] : m));
+      }
+
+      function render() {
+        document.documentElement.lang = state.lang;
+        for (const el of document.querySelectorAll('[data-i18n]')) {
+          el.textContent = t(el.dataset.i18n);
+        }
+        for (const el of document.querySelectorAll('*')) {
+          for (const attr of el.attributes) {
+            if (attr.name.startsWith('data-i18n-')) {
+              el.setAttribute(attr.name.slice('data-i18n-'.length), t(attr.value));
+            }
+          }
+        }
+        for (const b of document.querySelectorAll('.lang button')) {
+          b.setAttribute('aria-pressed', String(b.dataset.lang === state.lang));
+        }
+
+        const hero = document.getElementById('hero-download');
+        if (state.os) {
+          hero.textContent = t('hero.downloadFor', { os: OS_LABELS[state.os] });
+          hero.href = `#install-${state.os}`;
+        }
+
+        const rel = state.release;
+        document.getElementById('hero-notes').hidden = !rel;
+        document.getElementById('hero-version').textContent = rel
+          ? t('hero.version', {
+            version: rel.version,
+            date: new Intl.DateTimeFormat(LOCALES[state.lang], { day: 'numeric', month: 'long', year: 'numeric' }).format(rel.date),
+          })
+          : '';
+      }
+
+      // applyRelease подставляет прямые ссылки на вложения выпуска vX.Y.Z.
+      // Ссылка без подходящего вложения остаётся на странице выпусков; ссылки
+      // не на выпуски этого репозитория отбрасываются.
+      function applyRelease(rel) {
+        const m = /^v(\d+\.\d+\.\d+)$/.exec(rel.tag_name || '');
+        if (!m) return;
+        const version = m[1];
+        const date = new Date(rel.published_at);
+        if (Number.isNaN(date.getTime())) return;
+        const assets = Array.isArray(rel.assets) ? rel.assets : [];
+        for (const a of document.querySelectorAll('a[data-asset]')) {
+          const tail = version + SUFFIXES[a.dataset.asset];
+          const asset = assets.find((x) => {
+            const name = String(x.name || '');
+            const stem = name.endsWith(tail) ? name.slice(0, -tail.length) : '';
+            return (stem === `${APP}-` || stem === `${APP}_`)
+              && String(x.browser_download_url || '').startsWith(`${RELEASES}download/`);
+          });
+          if (asset) a.href = asset.browser_download_url;
+        }
+        if (String(rel.html_url || '').startsWith(RELEASES)) {
+          document.getElementById('hero-notes').href = rel.html_url;
+        }
+        state.release = { version, date };
+        render();
+      }
+
+      // Адрес ответа о последнем выпуске. На локальном сервере его можно
+      // подменить параметром ?release=<адрес> (проверка скрипта, docs/ci.md);
+      // на опубликованном сайте параметр не действует.
+      function releaseURL() {
+        const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+        const override = new URLSearchParams(location.search).get('release');
+        return local && override ? override : `https://api.github.com/repos/${REPO}/releases/latest`;
+      }
+
+      for (const b of document.querySelectorAll('.lang button')) {
+        b.addEventListener('click', () => {
+          state.lang = b.dataset.lang;
+          saveLang(state.lang);
+          render();
+        });
+      }
+      document.querySelector('.lang').hidden = false;
+      if (state.os) document.getElementById(`install-${state.os}`).classList.add('current');
+      render();
+
+      // Без ответа API страница остаётся рабочей: ссылки ведут на страницу выпусков.
+      fetch(releaseURL(), { headers: { Accept: 'application/vnd.github+json' } })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+        .then(applyRelease)
+        .catch(() => {});
+    })();
+  </script>
+</body>
+</html>
