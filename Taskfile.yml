@@ -5,6 +5,8 @@ version: '3'
 
 vars:
   APP_NAME: "desktop-app"
+  # Название продукта — для заголовков окон загрузчика AppImage.
+  PRODUCT_NAME: "Desktop App"
   BIN_DIR: "bin"
   # Фронтенд ставится и собирается только через yarn 4.
   PACKAGE_MANAGER: "yarn"

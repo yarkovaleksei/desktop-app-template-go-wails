@@ -1,0 +1,25 @@
+#!/bin/sh
+# Из go-desktop-kit cmd/appimage-bootstrap/AppRun (v0.1.1), без изменений по сути.
+#
+# Загрузчик запускается до окружения GTK из образа: системные zenity и pkexec
+# должны работать со своими библиотеками. Окружение образа (PATH,
+# LD_LIBRARY_PATH, XDG_DATA_DIRS, каталоги WebKit) задаёт следующий за ним
+# AppRun.wails — исходный AppRun, созданный сборкой Wails.
+#
+# Коды загрузчика: 0 — запускать приложение; 20 — профиль AppArmor установлен,
+# образ запускается заново, а APPIMAGE_BOOTSTRAP_RETRY=1 не даёт спросить
+# пароль второй раз; прочие — запуск отменён, код возвращается как есть.
+set -eu
+appdir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+status=0
+"$appdir/usr/libexec/appimage-bootstrap" "$@" || status=$?
+case "$status" in
+  0) ;;
+  20) export APPIMAGE_BOOTSTRAP_RETRY=1; exec "$APPIMAGE" "$@" ;;
+  *) exit "$status" ;;
+esac
+# Явная настройка профиля приложение не запускает.
+if [ "$#" -eq 1 ] && [ "$1" = --setup-apparmor ]; then
+  exit 0
+fi
+exec "$appdir/AppRun.wails" "$@"

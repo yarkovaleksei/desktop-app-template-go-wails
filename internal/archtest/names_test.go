@@ -25,6 +25,7 @@ var nameUses = []nameUse{
 	{"build/config.yml", regexp.MustCompile(`(?m)^\s*productName:\s*"([^"]*)"`), appinfo.Name, "Name"},
 	{"build/config.yml", regexp.MustCompile(`(?m)^\s*productIdentifier:\s*"([^"]*)"`), appinfo.ProductID, "ProductID"},
 	{"build/config.yml", regexp.MustCompile(`(?m)^\s*description:\s*"([^"]*)"`), appinfo.Description, "Description"},
+	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*PRODUCT_NAME:\s*"([^"]*)"`), appinfo.Name, "Name"},
 	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*APP_NAME:\s*"([^"]*)"`), appinfo.Slug, "Slug"},
 	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*([A-Z0-9_]+)_HOME:\s`), appinfo.EnvPrefix, "EnvPrefix"},
 	{"frontend/index.html", regexp.MustCompile(`<title>([^<]*)</title>`), appinfo.Name, "Name"},

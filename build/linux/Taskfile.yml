@@ -50,7 +50,7 @@ tasks:
       GOARCH: '{{.ARCH | default ARCH}}'
 
   package:
-    summary: deb, rpm и пакет Arch в bin/
+    summary: deb, rpm, пакет Arch и AppImage в bin/
     # deb, rpm и пакет Arch несут один бинарь без вшитого формата: формат
     # приложение читает из метки /usr/share/desktop-app/package-format,
     # своей в каждом пакете (nfpm.yaml).
@@ -60,6 +60,35 @@ tasks:
       - task: generate:deb
       - task: generate:rpm
       - task: generate:aur
+      - task: create:appimage
+
+  create:appimage:
+    summary: AppImage в bin/desktop-app-x86_64.AppImage — свой бинарь с форматом appimage и загрузчиком AppArmor
+    # Бинарь AppImage собирается отдельно, в каталог сборки образа: в нём
+    # вшит формат appimage, а bin/desktop-app остаётся для deb, rpm и Arch.
+    preconditions:
+      - sh: '[ "{{OS}}" = linux ] && [ "$(uname -m)" = x86_64 ]'
+        msg: "AppImage собирается только на Linux x86_64"
+    vars:
+      WORK: '{{.ROOT_DIR}}/build/linux/appimage/build'
+    cmds:
+      - task: build
+        vars:
+          OUTPUT: '{{.WORK}}/bin/{{.APP_NAME}}'
+          PACKAGE_FORMAT: appimage
+      # linuxdeploy закреплённой версии — до Wails: иначе тот скачает
+      # continuous без проверки.
+      - bash build/linux/appimage/linuxdeploy.sh "{{.WORK}}"
+      - mkdir -p "{{.WORK}}/wails"
+      - cp build/appicon.png "{{.WORK}}/{{.APP_NAME}}.png"
+      - >-
+        wails3 generate appimage -binary "{{.WORK}}/bin/{{.APP_NAME}}"
+        -icon "{{.WORK}}/{{.APP_NAME}}.png" -desktopfile "{{.ROOT_DIR}}/build/linux/{{.APP_NAME}}.desktop"
+        -outputdir "{{.WORK}}/wails" -builddir "{{.WORK}}"
+      - >-
+        bash build/linux/appimage/finalize.sh "{{.WORK}}/{{.APP_NAME}}-x86_64.AppDir"
+        "{{.ROOT_DIR}}/{{.BIN_DIR}}/{{.APP_NAME}}-x86_64.AppImage" "{{.APP_NAME}}" "{{.PRODUCT_NAME}}"
+        "{{.WORK}}/linuxdeploy-x86_64.AppImage"
 
   generate:deb:
     summary: Собрать deb из bin/ (сначала build)
