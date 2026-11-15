@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/wailsapp/wails/v3 v3.0.0
-	github.com/yarkovaleksei/go-desktop-kit v0.1.0
+	github.com/yarkovaleksei/go-desktop-kit v0.1.1
 )
 
 require (
