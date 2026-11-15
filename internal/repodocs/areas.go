@@ -46,7 +46,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title:    "Сборка и поставки",
-		Docs:     []string{"README.md"},
+		Docs:     []string{"docs/packaging.md", "docs/release.md", "docs/ci.md"},
 		Packages: []string{"scripts/icon"},
 		Paths: []string{
 			"Taskfile.yml", "build", "scripts/smoke-desktop.sh",
@@ -55,7 +55,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title:    "Проверки репозитория",
-		Docs:     []string{"docs/development.md#тесты", "docs/code-style.md"},
+		Docs:     []string{"docs/development.md#тесты", "docs/code-style.md", "docs/ci.md#docs"},
 		Packages: []string{"internal/repodocs", "internal/archtest"},
 		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod"},
 	},

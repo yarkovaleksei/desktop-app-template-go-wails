@@ -148,7 +148,7 @@ WebKitGTK на Linux пишет своё хранилище в `~/.cache/desktop
 | Привязки | `frontend/bindings` | Совпадают с Go-сервисами | `wails3 task check:bindings` |
 | Запуск | собранный бинарь | Окно открылось, фронтенд ответил | `wails3 task smoke` |
 
-`wails3 task check` запускает всё, кроме сквозных сценариев, гонок, привязок и smoke; их запускает CI (см. ci.md). Браузер для сквозных сценариев ставится один раз: `yarn playwright install chromium --no-shell` в `frontend/`.
+`wails3 task check` запускает всё, кроме сквозных сценариев, гонок, привязок и smoke; их запускает CI (см. [ci.md](ci.md)). Браузер для сквозных сценариев ставится один раз: `yarn playwright install chromium --no-shell` в `frontend/`.
 
 ## Как добавить
 

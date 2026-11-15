@@ -54,7 +54,7 @@
 
 ## Сборка и поставки
 
-Документы: [README.md](../README.md).
+Документы: [docs/packaging.md](packaging.md), [docs/release.md](release.md), [docs/ci.md](ci.md).
 
 | Пакет | Назначение |
 | --- | --- |
@@ -64,7 +64,7 @@
 
 ## Проверки репозитория
 
-Документы: [docs/development.md#тесты](development.md#тесты), [docs/code-style.md](code-style.md).
+Документы: [docs/development.md#тесты](development.md#тесты), [docs/code-style.md](code-style.md), [docs/ci.md#docs](ci.md#docs).
 
 | Пакет | Назначение |
 | --- | --- |
