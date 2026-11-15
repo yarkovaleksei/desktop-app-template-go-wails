@@ -131,7 +131,18 @@ func run() int {
 		Crash:           crash,
 		OnFrontendReady: check.onReady(func() { wailsApp.Quit() }),
 	})
-	settingsService := app.NewSettingsService(app.SettingsOptions{Store: store, Log: log})
+	// desk появляется после окна; до запуска приложения настройки не
+	// сохраняются, поэтому OnChange видит его уже заданным.
+	var desk *desktop
+	settingsService := app.NewSettingsService(app.SettingsOptions{
+		Store: store,
+		Log:   log,
+		OnChange: func(v settings.Settings) {
+			if desk != nil {
+				desk.settingsChanged(v)
+			}
+		},
+	})
 
 	// window объявлен до application.New: повторный запуск показывает окно,
 	// которое создаётся после.
@@ -181,6 +192,12 @@ func run() int {
 	wailsx.RestoreWindow(wailsApp, &windowOptions, windowFile)
 	window = wailsApp.Window.NewWithOptions(windowOptions)
 	wailsx.TrackWindow(window, windowFile)
+
+	// Трей, сигналы и остальная связка с рабочим столом мешали бы проверке
+	// запуска: в smoke-режиме их нет.
+	if check == nil {
+		desk = setupDesktop(wailsApp, window, store, updates, log)
+	}
 
 	if check != nil {
 		timer := time.AfterFunc(*smokeTimeout, func() {
