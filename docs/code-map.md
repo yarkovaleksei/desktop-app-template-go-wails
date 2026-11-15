@@ -71,8 +71,8 @@
 | [`internal/repodocs`](../internal/repodocs) | Хранит таблицу областей карты кода; тесты пакета сверяют карту и документы репозитория с кодом. |
 | [`internal/archtest`](../internal/archtest) | Тесты правил архитектуры шаблона. |
 
-Ещё: [`.github/workflows/docs.yml`](../.github/workflows/docs.yml), [`.github/actionlint.yaml`](../.github/actionlint.yaml), [`go.mod`](../go.mod).
+Ещё: [`.github/workflows/docs.yml`](../.github/workflows/docs.yml), [`.github/actionlint.yaml`](../.github/actionlint.yaml), [`go.mod`](../go.mod), [`README.md`](../README.md), [`README.en.md`](../README.en.md), [`docs/README.md`](README.md).
 
 ## Инициализация шаблона
 
-Документы: [README.md](../README.md).
+Документы: [README.md#как-начать-проект-из-шаблона](../README.md#как-начать-проект-из-шаблона), [README.en.md#starting-a-project-from-the-template](../README.en.md#starting-a-project-from-the-template).

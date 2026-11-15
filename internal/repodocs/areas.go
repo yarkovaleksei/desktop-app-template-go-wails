@@ -57,10 +57,10 @@ var Areas = []kitdocs.Area{
 		Title:    "Проверки репозитория",
 		Docs:     []string{"docs/development.md#тесты", "docs/code-style.md", "docs/ci.md#docs"},
 		Packages: []string{"internal/repodocs", "internal/archtest"},
-		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod"},
+		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod", "README.md", "README.en.md", "docs/README.md"},
 	},
 	{
 		Title: "Инициализация шаблона",
-		Docs:  []string{"README.md"},
+		Docs:  []string{"README.md#как-начать-проект-из-шаблона", "README.en.md#starting-a-project-from-the-template"},
 	},
 }
