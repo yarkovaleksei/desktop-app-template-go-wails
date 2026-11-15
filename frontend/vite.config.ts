@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import wails from "@wailsio/runtime/plugins/vite";
 
-// https://vitejs.dev/config/
+// Порт задаёт wails3 dev через WAILS_VITE_PORT; strictPort — чтобы окно не открыло чужой сервер.
 export default defineConfig({
   server: {
     host: "127.0.0.1",

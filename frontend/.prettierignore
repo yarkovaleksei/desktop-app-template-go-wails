@@ -1,0 +1,6 @@
+dist
+bindings
+node_modules
+coverage
+.yarn
+yarn.lock
