@@ -17,6 +17,8 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+
+	"github.com/yarkovaleksei/desktop-app-template-go-wails/internal/appinfo"
 )
 
 // Размеры файлов иконки.
@@ -33,7 +35,7 @@ const (
 )
 
 func main() {
-	slug := flag.String("slug", "desktop-app", "слаг проекта: из него вычисляется цвет плашки")
+	slug := flag.String("slug", appinfo.Slug, "слаг проекта: из него вычисляется цвет плашки")
 	colorFlag := flag.String("color", "", "цвет плашки #RRGGBB вместо вычисленного из слага")
 	out := flag.String("out", "build", "каталог для файлов иконки")
 	flag.Parse()
