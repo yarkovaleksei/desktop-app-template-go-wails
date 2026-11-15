@@ -1,0 +1,34 @@
+# Сверка документов и устройства репозитория с кодом: имена приложения вне Go,
+# коды ошибок и тексты, границы Wails, метки пакетов (internal/archtest).
+# check.yml не запускается на изменения только документов, поэтому эта
+# проверка — отдельный лёгкий workflow на любые изменения. Пакетам проверки
+# не нужны CGO, GTK, Node и frontend/dist.
+name: docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    name: Документы и устройство репозитория
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+
+      - name: Сверка
+        run: go test -count=1 ./internal/archtest
