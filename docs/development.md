@@ -63,7 +63,7 @@ frontend/src/api/source.ts     интерфейс DataSource: всё, что и�
 frontend/src/store/appStore.ts стор zustand поверх DataSource
 ```
 
-- **Привязки.** `frontend/bindings` генерирует `wails3 task bindings` из методов сервисов и зарегистрированных событий. Каталог коммитится и руками не правится; `wails3 task check:bindings` падает, если он отстал от Go (в CI тоже).
+- **Привязки.** `frontend/bindings` генерирует `wails3 task bindings` из методов сервисов и зарегистрированных событий. Каталог коммитится и руками не правится; `wails3 task check:bindings` перегенерирует привязки и падает, если `git status` показывает в `frontend/bindings` изменения: он сверяет Go с закоммиченным каталогом, поэтому до коммита свежих привязок падает и при правильных привязках.
 - **Один импорт.** Длинные пути привязок встречаются только в `frontend/src/api/bindings.ts`. Остальной код берёт типы и вызовы через `frontend/src/api/index.ts`.
 - **`DataSource`.** Интерфейс в `frontend/src/api/source.ts`. Источник выбирает `pickSource()` в `frontend/src/api/index.ts`: в нативном окне — `wailsSource`, в обычном браузере — `mockSource`. Ненужная реализация не загружается.
 - **Моки.** `mockSource` принимает начальное состояние из адреса страницы: `/?lang=en&theme=dark&update=ready&format=dmg#/settings`. Полный список параметров — в комментарии `mockOptionsFromSearch` в `frontend/src/api/mockSource.ts`. Так сценарии Playwright задают состояние без правки кода.

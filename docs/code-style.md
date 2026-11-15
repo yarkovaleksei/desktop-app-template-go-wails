@@ -8,7 +8,7 @@
 
 | Что менялось | Команда |
 | --- | --- |
-| Методы сервисов, события, типы их данных | `wails3 task bindings`, затем `wails3 task check:bindings` |
+| Методы сервисов, события, типы их данных | `wails3 task bindings` и `frontend/bindings` в том же коммите; `wails3 task check:bindings` сверяет с закоммиченным и до коммита падает — его запускает CI или ты после коммита |
 | Интерфейс: страницы, переключатели, состояния | `wails3 task test:e2e` |
 | Ядро с горутинами и общими данными | `wails3 task check:race` |
 | `main.go`, `desktop.go`, окно | `wails3 task build` и `wails3 task smoke` |

@@ -83,7 +83,7 @@ wails3 task test:frontend   # Vitest (адресно: yarn test <файл> в fr
 wails3 task test:e2e        # сквозные сценарии Playwright на моках
 wails3 task fmt             # отформатировать Go и фронтенд
 wails3 task bindings        # перегенерировать frontend/bindings после изменения сервисов и событий
-wails3 task check:bindings  # привязки не отстали от Go
+wails3 task check:bindings  # закоммиченные привязки не отстали от Go (после коммита, в CI)
 wails3 task check:race      # ядро под детектором гонок
 wails3 task check:docs      # ссылки, пути и задачи в документах, актуальность карты кода
 wails3 task docs:map        # перегенерировать docs/code-map.md
