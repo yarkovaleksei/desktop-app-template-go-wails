@@ -165,16 +165,22 @@ func run() int {
 	})
 
 	// MinWidth и MinHeight обязательны: без них окно GTK 4 может открыться размером 1×1.
-	// На Linux (GTK 4, Wails v3.0.0) Width и Height не применяются: окно открывается
-	// по минимальному размеру. Обход появится вместе с восстановлением размера окна (D-040).
-	window = wailsApp.Window.NewWithOptions(application.WebviewWindowOptions{
+	// Сохранённые размер, положение и разворот подставляет RestoreWindow, а
+	// TrackWindow запоминает их при закрытии и выходе (D-037). На Linux GTK 4
+	// не применяет начальный размер надёжно, и до запуска экраны неизвестны;
+	// обход — внутри wailsx (D-040), здесь кода для этого нет.
+	windowFile := filepath.Join(dirs.Config, "window.json")
+	windowOptions := application.WebviewWindowOptions{
 		Title:     appinfo.Name,
 		Width:     windowWidth,
 		Height:    windowHeight,
 		MinWidth:  windowMinWidth,
 		MinHeight: windowMinHeight,
 		URL:       "/",
-	})
+	}
+	wailsx.RestoreWindow(wailsApp, &windowOptions, windowFile)
+	window = wailsApp.Window.NewWithOptions(windowOptions)
+	wailsx.TrackWindow(window, windowFile)
 
 	if check != nil {
 		timer := time.AfterFunc(*smokeTimeout, func() {
