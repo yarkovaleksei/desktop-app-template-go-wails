@@ -133,6 +133,10 @@ func run() int {
 	})
 	settingsService := app.NewSettingsService(app.SettingsOptions{Store: store, Log: log})
 
+	// window объявлен до application.New: повторный запуск показывает окно,
+	// которое создаётся после.
+	var window *application.WebviewWindow
+
 	wailsApp = application.New(application.Options{
 		Name:        appinfo.Name,
 		Description: appinfo.Description,
@@ -149,12 +153,21 @@ func run() int {
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
+		// Один экземпляр на каталог настроек: повторный запуск (ярлык, меню)
+		// показывает окно первого. Другой DESKTOP_APP_HOME — другой экземпляр,
+		// поэтому smoke и разработка не мешают установленному приложению.
+		SingleInstance: wailsx.SingleInstance(appinfo.ProductID, dirs.Config, func([]string) {
+			log.Info("повторный запуск: показать окно")
+			if window != nil {
+				showWindow(window)
+			}
+		}),
 	})
 
 	// MinWidth и MinHeight обязательны: без них окно GTK 4 может открыться размером 1×1.
 	// На Linux (GTK 4, Wails v3.0.0) Width и Height не применяются: окно открывается
 	// по минимальному размеру. Обход появится вместе с восстановлением размера окна (D-040).
-	wailsApp.Window.NewWithOptions(application.WebviewWindowOptions{
+	window = wailsApp.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:     appinfo.Name,
 		Width:     windowWidth,
 		Height:    windowHeight,
@@ -187,6 +200,12 @@ func run() int {
 		return 1
 	}
 	return 0
+}
+
+// showWindow показывает окно и выводит его на передний план.
+func showWindow(w *application.WebviewWindow) {
+	w.Show()
+	w.Focus()
 }
 
 // detectFormat определяет формат пакета этой сборки (D-047).
