@@ -182,6 +182,9 @@ func run() int {
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
+		// Закрытие последнего окна на macOS завершает приложение. При работе в
+		// фоне окно не закрывается, а прячется (хук трея), поэтому включённая
+		// настройка фона этим не нарушается и может меняться без перезапуска.
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
@@ -220,13 +223,11 @@ func run() int {
 	window = wailsApp.Window.NewWithOptions(windowOptions)
 	wailsx.TrackWindow(window, windowFile)
 
-	// Трей, сигналы и остальная связка с рабочим столом мешали бы проверке
-	// запуска: в smoke-режиме их нет.
+	// Трей, уведомления, автозапуск и фоновая проверка обновлений мешали бы
+	// проверке запуска: в smoke-режиме вместо них — таймер проверки.
 	if check == nil {
 		desk = setupDesktop(wailsApp, window, store, updates, notifier, format, log)
-	}
-
-	if check != nil {
+	} else {
 		timer := time.AfterFunc(*smokeTimeout, func() {
 			check.finish(smoke.Report{Error: fmt.Sprintf("фронтенд не ответил за %s", *smokeTimeout)})
 			wailsApp.Quit()
