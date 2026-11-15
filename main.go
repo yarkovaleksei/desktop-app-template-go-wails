@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/services/notifications"
 	"github.com/yarkovaleksei/go-desktop-kit/appdirs"
 	"github.com/yarkovaleksei/go-desktop-kit/applog"
 	"github.com/yarkovaleksei/go-desktop-kit/autostart"
@@ -160,16 +161,24 @@ func run() int {
 	// которое создаётся после.
 	var window *application.WebviewWindow
 
+	services := []application.Service{
+		application.NewService(appService),
+		application.NewService(settingsService),
+		application.NewService(updates),
+	}
+	// Уведомления ОС — часть связки с рабочим столом: в smoke-режиме их нет.
+	var notifier *notifications.NotificationService
+	if check == nil {
+		notifier = notifications.New()
+		services = append(services, application.NewService(notifier))
+	}
+
 	wailsApp = application.New(application.Options{
 		Name:        appinfo.Name,
 		Description: appinfo.Description,
 		Icon:        appIcon,
 		Logger:      log,
-		Services: []application.Service{
-			application.NewService(appService),
-			application.NewService(settingsService),
-			application.NewService(updates),
-		},
+		Services:    services,
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
@@ -214,7 +223,7 @@ func run() int {
 	// Трей, сигналы и остальная связка с рабочим столом мешали бы проверке
 	// запуска: в smoke-режиме их нет.
 	if check == nil {
-		desk = setupDesktop(wailsApp, window, store, updates, log)
+		desk = setupDesktop(wailsApp, window, store, updates, notifier, log)
 	}
 
 	if check != nil {

@@ -6,9 +6,12 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"runtime"
+	"sync"
 	"syscall"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/services/notifications"
 	"github.com/yarkovaleksei/go-desktop-kit/autostart"
 	"github.com/yarkovaleksei/go-desktop-kit/wailsx"
 
@@ -31,7 +34,8 @@ var (
 const settingsPage = "/settings"
 
 // desktop связывает приложение с рабочим столом: трей и работа в фоне,
-// автозапуск, завершение по сигналу. В smoke-режиме не создаётся.
+// автозапуск, уведомления, завершение по сигналу. В smoke-режиме не
+// создаётся.
 type desktop struct {
 	app     *application.App
 	window  *application.WebviewWindow
@@ -42,13 +46,20 @@ type desktop struct {
 	tray      *wailsx.Tray
 	quit      func()
 	autostart autostart.Manager
+
+	notifications *notifications.NotificationService
+	notifier      *wailsx.Notifier
+	askAuth       sync.Once
 }
 
 // setupDesktop добавляет трей и обработку SIGINT и SIGTERM. Вызывается после
 // wailsx.TrackWindow: хук трея, прячущий окно, должен идти после хука,
 // который запоминает границы.
-func setupDesktop(a *application.App, w *application.WebviewWindow, store *settings.Store, updates *wailsx.UpdatesService, log *slog.Logger) *desktop {
-	d := &desktop{app: a, window: w, store: store, updates: updates, log: log}
+//
+// ns — сервис уведомлений Wails, уже зарегистрированный в
+// application.Options.Services.
+func setupDesktop(a *application.App, w *application.WebviewWindow, store *settings.Store, updates *wailsx.UpdatesService, ns *notifications.NotificationService, log *slog.Logger) *desktop {
+	d := &desktop{app: a, window: w, store: store, updates: updates, notifications: ns, log: log}
 	if !wailsx.TrayAvailable() {
 		log.Warn("трей недоступен: закрытие окна завершает приложение, работа в фоне не действует")
 	}
@@ -67,6 +78,9 @@ func setupDesktop(a *application.App, w *application.WebviewWindow, store *setti
 		Comment: texts.T(d.lang(), texts.AutostartComment, nil),
 		Icon:    appinfo.Slug,
 	})
+	// Нажатие на уведомление показывает окно на странице настроек: оттуда
+	// ставится обновление, о котором уведомление сообщает.
+	d.notifier = wailsx.NewNotifier(ns, appinfo.Slug, func(map[string]any) { d.openSettings() })
 	d.handleSignals()
 	return d
 }
@@ -107,6 +121,23 @@ func (d *desktop) checkUpdatesNow() {
 func (d *desktop) openSettings() {
 	showWindow(d.window)
 	wailsx.Emit(app.EventNavigate, settingsPage)
+}
+
+// notify показывает уведомление ОС. Отказ системы (нет службы уведомлений,
+// запрет пользователя) не ошибка для приложения: он пишется в журнал.
+func (d *desktop) notify(title, body string) {
+	if runtime.GOOS == "darwin" {
+		// macOS показывает уведомления только с разрешения; спрашивается один
+		// раз, при первом уведомлении, а не при запуске.
+		d.askAuth.Do(func() {
+			if ok, err := d.notifications.RequestNotificationAuthorization(); err != nil || !ok {
+				d.log.Warn("уведомления не разрешены", "error", err)
+			}
+		})
+	}
+	if err := d.notifier.Send(title, body, nil); err != nil {
+		d.log.Warn("уведомление не показано", "title", title, "error", err)
+	}
 }
 
 // settingsChanged — настройки сохранены: меню трея перестраивается на
