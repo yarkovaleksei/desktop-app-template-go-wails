@@ -90,6 +90,83 @@ tasks:
     cmds:
       - yarn install --immutable
 
+  # Пакету main нужен frontend/dist (//go:embed): без него go vet, go test и
+  # staticcheck не соберут корневой пакет. Заодно перегенерируются привязки.
+  frontend:dist:
+    internal: true
+    cmds:
+      - task: common:build:frontend
+        vars:
+          DEV: "true"
+
+  test:go:
+    summary: Тесты Go — все пакеты модуля, после сборки фронтенда
+    deps: [frontend:dist]
+    cmds:
+      - go test ./...
+
+  test:frontend:
+    summary: Тесты фронтенда (Vitest)
+    dir: frontend
+    cmds:
+      - yarn test
+
+  test:
+    summary: Все тесты, кроме сквозных (их запускает test:e2e)
+    cmds:
+      - task: test:go
+      - task: test:frontend
+
+  lint:go:
+    summary: gofmt, go vet и staticcheck
+    deps: [frontend:dist]
+    cmds:
+      - cmd: |
+          unformatted=$(gofmt -l $(git ls-files --cached --others --exclude-standard '*.go'))
+          if [ -n "$unformatted" ]; then echo "Не отформатировано gofmt:"; echo "$unformatted"; exit 1; fi
+      - go vet ./...
+      - go tool staticcheck ./...
+
+  lint:frontend:
+    summary: ESLint и Prettier
+    dir: frontend
+    cmds:
+      - yarn lint
+      - yarn format:check
+
+  lint:
+    summary: Все линтеры
+    cmds:
+      - task: lint:go
+      - task: lint:frontend
+
+  typecheck:
+    summary: Проверка типов фронтенда
+    dir: frontend
+    cmds:
+      - yarn typecheck
+
+  fmt:
+    summary: Отформатировать Go и фронтенд
+    cmds:
+      - gofmt -w $(git ls-files --cached --others --exclude-standard '*.go')
+      - cd frontend && yarn format
+
+  check:
+    summary: Все проверки перед коммитом — зависимости, тесты, типы, линтеры
+    cmds:
+      - task: deps
+      - task: test
+      - task: typecheck
+      - task: lint
+
+  check:race:
+    summary: Тесты ядра под детектором гонок
+    # Корневой пакет (Wails, GTK через CGO) под -race собирался бы дольше
+    # самих тестов, а логики в нём нет: проверяется только internal/.
+    cmds:
+      - go test -race ./internal/...
+
   icons:
     summary: Нарисовать шаблонную иконку из слага (COLOR=#RRGGBB — свой цвет) и обновить производные
     cmds:
