@@ -14,13 +14,13 @@ import kitdocs "github.com/yarkovaleksei/go-desktop-kit/repodocs"
 var Areas = []kitdocs.Area{
 	{
 		Title:    "Точка входа и граница Wails",
-		Docs:     []string{"README.md"},
+		Docs:     []string{"docs/development.md#порядок-запуска", "docs/development.md#сервисы", "docs/development.md#контракт-go--typescript"},
 		Packages: []string{".", "internal/app"},
 		Paths:    []string{"frontend/bindings"},
 	},
 	{
 		Title:    "Настройки и сведения о приложении",
-		Docs:     []string{"README.md"},
+		Docs:     []string{"docs/development.md#настройки", "docs/development.md#каталоги-и-переменные-окружения"},
 		Packages: []string{"internal/appinfo", "internal/settings", "internal/texts"},
 	},
 	{
@@ -31,7 +31,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title: "Интерфейс: каркас",
-		Docs:  []string{"README.md"},
+		Docs:  []string{"docs/development.md#контракт-go--typescript", "docs/development.md#ошибки", "docs/development.md#события"},
 		Paths: []string{
 			"frontend/src/main.tsx", "frontend/src/app", "frontend/src/api", "frontend/src/store",
 			"frontend/src/i18n", "frontend/src/theme", "frontend/src/components", "frontend/src/logic",
@@ -40,7 +40,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title: "Интерфейс: страницы",
-		Docs:  []string{"README.md"},
+		Docs:  []string{"docs/development.md#страница"},
 		Pages: []string{"HomePage", "SettingsPage"},
 		Paths: []string{"frontend/e2e"},
 	},
@@ -55,7 +55,7 @@ var Areas = []kitdocs.Area{
 	},
 	{
 		Title:    "Проверки репозитория",
-		Docs:     []string{"README.md"},
+		Docs:     []string{"docs/development.md#тесты"},
 		Packages: []string{"internal/repodocs", "internal/archtest"},
 		Paths:    []string{".github/workflows/docs.yml", ".github/actionlint.yaml", "go.mod"},
 	},

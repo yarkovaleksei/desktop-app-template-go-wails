@@ -6,7 +6,7 @@
 
 ## Точка входа и граница Wails
 
-Документы: [README.md](../README.md).
+Документы: [docs/development.md#порядок-запуска](development.md#порядок-запуска), [docs/development.md#сервисы](development.md#сервисы), [docs/development.md#контракт-go--typescript](development.md#контракт-go--typescript).
 
 | Пакет | Назначение |
 | --- | --- |
@@ -17,7 +17,7 @@
 
 ## Настройки и сведения о приложении
 
-Документы: [README.md](../README.md).
+Документы: [docs/development.md#настройки](development.md#настройки), [docs/development.md#каталоги-и-переменные-окружения](development.md#каталоги-и-переменные-окружения).
 
 | Пакет | Назначение |
 | --- | --- |
@@ -37,13 +37,13 @@
 
 ## Интерфейс: каркас
 
-Документы: [README.md](../README.md).
+Документы: [docs/development.md#контракт-go--typescript](development.md#контракт-go--typescript), [docs/development.md#ошибки](development.md#ошибки), [docs/development.md#события](development.md#события).
 
 Ещё: [`frontend/src/main.tsx`](../frontend/src/main.tsx), [`frontend/src/app`](../frontend/src/app), [`frontend/src/api`](../frontend/src/api), [`frontend/src/store`](../frontend/src/store), [`frontend/src/i18n`](../frontend/src/i18n), [`frontend/src/theme`](../frontend/src/theme), [`frontend/src/components`](../frontend/src/components), [`frontend/src/logic`](../frontend/src/logic), [`frontend/src/test`](../frontend/src/test), [`frontend/index.html`](../frontend/index.html), [`frontend/package.json`](../frontend/package.json).
 
 ## Интерфейс: страницы
 
-Документы: [README.md](../README.md).
+Документы: [docs/development.md#страница](development.md#страница).
 
 | Страница | Назначение |
 | --- | --- |
@@ -64,7 +64,7 @@
 
 ## Проверки репозитория
 
-Документы: [README.md](../README.md).
+Документы: [docs/development.md#тесты](development.md#тесты).
 
 | Пакет | Назначение |
 | --- | --- |
