@@ -48,7 +48,7 @@ func main() {
 
 	// MinWidth и MinHeight обязательны: без них окно GTK 4 может открыться размером 1×1.
 	// На Linux (GTK 4, Wails v3.0.0) Width и Height не применяются: окно открывается
-	// по минимальному размеру. Вопрос Q-006 плана шаблона.
+	// по минимальному размеру. Обход появится вместе с восстановлением размера окна.
 	app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:     "Desktop App",
 		Width:     windowWidth,
