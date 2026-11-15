@@ -48,6 +48,22 @@ tasks:
     cmds:
       - task: common:generate:bindings
 
+  check:bindings:
+    summary: Проверить, что закоммиченные frontend/bindings совпадают с Go-сервисами
+    # Генератор вызывается напрямую, а не через common:generate:bindings: та
+    # задача пропускает запуск, если по её контрольным суммам ничего не
+    # менялось. Флаги — те же, что у неё. git status ловит и изменённые, и
+    # новые, и удалённые файлы привязок.
+    cmds:
+      - wails3 generate bindings -f '' -clean=true -ts -i
+      - cmd: |
+          changed=$(git status --porcelain -- frontend/bindings)
+          if [ -n "$changed" ]; then
+            echo "Привязки устарели — запустите wails3 task bindings и закоммитьте frontend/bindings:"
+            echo "$changed"
+            exit 1
+          fi
+
   smoke:
     summary: Проверить запуск собранного приложения (сначала build) — окно открылось, фронтенд ответил
     # Профиль пользователя не трогается: каталоги приложения — во временном
