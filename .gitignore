@@ -4,6 +4,7 @@
 
 # Сборка Wails и Task
 bin/
+dist/
 .task/
 build/linux/appimage/build
 build/windows/nsis/MicrosoftEdgeWebview2Setup.exe

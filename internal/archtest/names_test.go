@@ -28,6 +28,7 @@ var nameUses = []nameUse{
 	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*PRODUCT_NAME:\s*"([^"]*)"`), appinfo.Name, "Name"},
 	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*APP_NAME:\s*"([^"]*)"`), appinfo.Slug, "Slug"},
 	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*([A-Z0-9_]+)_HOME:\s`), appinfo.EnvPrefix, "EnvPrefix"},
+	{"Taskfile.yml", regexp.MustCompile(`(?m)^\s*REPO:\s*"([^"]*)"`), appinfo.Repo, "Repo"},
 	{"frontend/index.html", regexp.MustCompile(`<title>([^<]*)</title>`), appinfo.Name, "Name"},
 	{"build/linux/nfpm/nfpm.yaml", regexp.MustCompile(`(?m)^name:\s*"([^"]*)"`), appinfo.Slug, "Slug"},
 	{"build/linux/nfpm/nfpm.yaml", regexp.MustCompile(`(?m)^description:\s*"([^"]*)"`), appinfo.Description, "Description"},

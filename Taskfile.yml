@@ -8,6 +8,14 @@ vars:
   # Название продукта — для заголовков окон загрузчика AppImage.
   PRODUCT_NAME: "Desktop App"
   BIN_DIR: "bin"
+  # Каталог файлов выпуска: пакеты под именами updater.Naming и суммы.
+  DIST_DIR: "dist"
+  # Репозиторий GitHub, из выпусков которого приходят обновления.
+  REPO: "yarkovaleksei/desktop-app-template-go-wails"
+  # Состав выпуска — единственный список форматов. release:collect берёт
+  # из него форматы своей ОС, release:verify и release:promote сверяют
+  # выпуск с ним целиком. Порядок и имена — updater.Format в go-desktop-kit.
+  RELEASE_FORMATS: "deb,rpm,arch,appimage,dmg,nsis,exe"
   # Фронтенд ставится и собирается только через yarn 4.
   PACKAGE_MANAGER: "yarn"
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
@@ -214,6 +222,35 @@ tasks:
     summary: Обновить .ico и .icns из build/appicon.png, не трогая саму иконку
     cmds:
       - task: common:generate:icons
+
+  release:collect:
+    summary: Разложить пакеты текущей ОС из bin/ в dist/ под именами выпуска и записать SHA256SUMS-<ОС>.txt (сначала package)
+    # Версия выпуска — только X.Y.Z: имена файлов и обновление сравнивают
+    # её как semver без суффикса git describe.
+    vars:
+      OS_FORMATS: '{{$m := dict "deb" "linux" "rpm" "linux" "arch" "linux" "appimage" "linux" "dmg" "darwin" "nsis" "windows" "exe" "windows"}}{{$os := .GOOS}}{{$out := list}}{{range splitList "," .RELEASE_FORMATS}}{{if eq (get $m .) $os}}{{$out = append $out .}}{{end}}{{end}}{{join "," $out}}'
+    preconditions:
+      - sh: echo "{{.APP_VERSION}}" | grep -Eq '^[0-9]+[.][0-9]+[.][0-9]+$'
+        msg: "Версия выпуска — X.Y.Z (тег vX.Y.Z на текущем коммите или APP_VERSION=X.Y.Z), а сейчас {{.APP_VERSION}}"
+      - sh: '[ -n "{{.OS_FORMATS}}" ]'
+        msg: "В RELEASE_FORMATS нет форматов для {{.GOOS}}"
+    cmds:
+      - go tool relkit collect -app "{{.APP_NAME}}" -os "{{.GOOS}}" -version "{{.APP_VERSION}}" -formats "{{.OS_FORMATS}}" -from "{{.BIN_DIR}}" -to "{{.DIST_DIR}}"
+
+  release:plan:
+    summary: Только чтение — прежний выпуск, коммиты с него, чистота дерева, HEAD на сервере, CI, следующая версия
+    cmds:
+      - go tool relkit plan -repo "{{.REPO}}" -workflow check
+
+  release:verify:
+    summary: Сверить вложения выпуска vX.Y.Z с полным составом по digest из GitHub API, не скачивая пакеты
+    cmds:
+      - go tool relkit verify -app "{{.APP_NAME}}" -repo "{{.REPO}}" -version "{{.APP_VERSION}}" -formats "{{.RELEASE_FORMATS}}"
+
+  release:promote:
+    summary: Опубликовать черновик vX.Y.Z как latest — только после полной сверки вложений (до и после)
+    cmds:
+      - go tool relkit promote -app "{{.APP_NAME}}" -repo "{{.REPO}}" -version "{{.APP_VERSION}}" -formats "{{.RELEASE_FORMATS}}"
 
   version:
     summary: Напечатать версию, которая попадёт в сборку

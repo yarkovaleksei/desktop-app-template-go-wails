@@ -27,4 +27,7 @@ require (
 	honnef.co/go/tools v0.8.2 // indirect
 )
 
-tool honnef.co/go/tools/cmd/staticcheck
+tool (
+	github.com/yarkovaleksei/go-desktop-kit/cmd/relkit
+	honnef.co/go/tools/cmd/staticcheck
+)
