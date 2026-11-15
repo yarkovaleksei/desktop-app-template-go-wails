@@ -2,6 +2,9 @@ module github.com/yarkovaleksei/desktop-app-template-go-wails
 
 go 1.26.0
 
+// Зависимости фронтенда бывают с Go-кодом (flatted): ./... не должен их видеть.
+ignore ./frontend/node_modules
+
 require (
 	github.com/wailsapp/wails/v3 v3.0.0
 	github.com/yarkovaleksei/go-desktop-kit v0.1.1
