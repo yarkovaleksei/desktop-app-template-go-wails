@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.0.1"
+	},
+	"info": {
+		"0409": {
+			"ProductVersion": "0.0.1",
+			"CompanyName": "yarkovaleksei",
+			"FileDescription": "Desktop application on Go, Wails 3, React and MUI",
+			"LegalCopyright": "© 2026 yarkovaleksei",
+			"ProductName": "Desktop App",
+			"Comments": "(c) 2026 yarkovaleksei"
+		}
+	}
+}

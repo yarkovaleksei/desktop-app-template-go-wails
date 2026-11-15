@@ -1,0 +1,72 @@
+version: '3'
+
+# Задачи Desktop App. Запуск: `wails3 task <имя>` (или `task <имя>`, если Task установлен отдельно).
+# Платформенные задачи сборки и упаковки сгенерированы Wails и лежат в build/.
+
+vars:
+  APP_NAME: "desktop-app"
+  BIN_DIR: "bin"
+  # Фронтенд ставится и собирается только через yarn 4.
+  PACKAGE_MANAGER: "yarn"
+  VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
+  # Целевая ОС для build/package/run. По умолчанию — текущая, переопределяется GOOS.
+  GOOS: '{{.GOOS | default OS}}'
+  # Версия — из последнего тега vX.Y.Z: у выпуска это сам тег, между тегами —
+  # «1.2.0-3-gabc123», без тегов — 0.0.1-dev. Переопределяется переменной
+  # окружения VERSION или `wails3 task … APP_VERSION=1.2.0`.
+  # Вшивается в бинарь через -X main.version.
+  GIT_DESCRIBE:
+    sh: git describe --tags --match "v[0-9]*" --dirty 2>/dev/null || echo v0.0.1-dev
+  APP_VERSION: '{{.VERSION | default (trimPrefix "v" .GIT_DESCRIBE)}}'
+  # Числовая часть X.Y.Z: установщик Windows и Info.plist другой не принимают.
+  APP_VERSION_NUM: '{{regexFind "^[0-9]+[.][0-9]+[.][0-9]+" .APP_VERSION | default "0.0.1"}}'
+
+includes:
+  common: ./build/Taskfile.yml
+  windows: ./build/windows/Taskfile.yml
+  darwin: ./build/darwin/Taskfile.yml
+  linux: ./build/linux/Taskfile.yml
+
+tasks:
+  build:
+    summary: Собрать приложение для текущей ОС
+    cmds:
+      - task: "{{.GOOS}}:build"
+
+  package:
+    summary: Собрать установочные пакеты для текущей ОС
+    cmds:
+      - task: "{{.GOOS}}:package"
+
+  run:
+    summary: Запустить собранное приложение
+    cmds:
+      - task: "{{.GOOS}}:run"
+
+  dev:
+    summary: Окно в режиме разработки с перезагрузкой фронтенда
+    cmds:
+      - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
+
+  deps:
+    summary: Установить зависимости фронтенда по yarn.lock без изменений
+    dir: frontend
+    cmds:
+      - yarn install --immutable
+
+  icons:
+    summary: Нарисовать шаблонную иконку из слага (COLOR=#RRGGBB — свой цвет) и обновить производные
+    cmds:
+      - go run ./scripts/icon -slug "{{.APP_NAME}}" -out build{{if .COLOR}} -color "{{.COLOR}}"{{end}}
+      - task: icons:derive
+
+  icons:derive:
+    summary: Обновить .ico и .icns из build/appicon.png, не трогая саму иконку
+    cmds:
+      - task: common:generate:icons
+
+  version:
+    summary: Напечатать версию, которая попадёт в сборку
+    silent: true
+    cmds:
+      - echo "{{.APP_VERSION}}"

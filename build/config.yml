@@ -1,0 +1,51 @@
+# Настройки проекта для инструментов Wails.
+# После правки `info` запустите `wails3 task common:update:build-assets`: задача
+# перегенерирует файлы в build/ (Info.plist, info.json, nfpm, NSIS) и затрёт их ручные правки.
+version: '3'
+
+# Сведения о продукте для файлов сборки.
+info:
+  companyName: "yarkovaleksei" # Компания
+  productName: "Desktop App" # Название приложения
+  productIdentifier: "io.github.yarkovaleksei.desktopapp" # Уникальный идентификатор продукта
+  description: "Desktop application on Go, Wails 3, React and MUI" # Описание
+  copyright: "© 2026 yarkovaleksei" # Авторские права
+  comments: "Desktop App" # Комментарий
+  version: "0.0.1" # Версия в файлах сборки; версия бинаря берётся из тега (wails3 task version)
+
+# Dev mode configuration
+dev_mode:
+  root_path: .
+  log_level: warn
+  debounce: 1000
+  ignore:
+    dir:
+      - .git
+      - node_modules
+      - frontend
+      - bin
+    file:
+      - .DS_Store
+      - .gitignore
+      - .gitkeep
+      - "*_test.go"
+    watched_extension:
+      - "*.go"
+      - "*.js" # Watch for changes to JS/TS files included using the //wails:include directive.
+      - "*.ts" # The frontend directory will be excluded entirely by the setting above.
+    git_ignore: true
+  executes:
+    - cmd: wails3 build DEV=true
+      type: blocking
+    - cmd: wails3 task common:dev:frontend
+      type: background
+      # The standard frontend task waits up to 60s for HTTP 200 from
+      # FRONTEND_DEVSERVER_URL before starting the app. Override if needed;
+      # custom background commands can opt in with the same readiness block.
+      # readiness:
+      #   http: "http://localhost:5173/"
+      #   timeout: "60s"
+      #   interval: "200ms"
+    - cmd: wails3 task run
+      type: primary
+      exit_policy: shutdown

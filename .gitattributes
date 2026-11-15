@@ -1,0 +1,9 @@
+# Концы строк в репозитории — LF на всех ОС: тесты сравнивают файлы байт в байт,
+# а git на Windows по умолчанию отдал бы их с CRLF.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.icns binary
+*.car binary
