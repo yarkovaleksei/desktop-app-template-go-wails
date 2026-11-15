@@ -1,0 +1,47 @@
+# Сайт проекта на GitHub Pages: статическая страница из www/ без сборки.
+# Публикуется по push в main с изменениями сайта и вручную.
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "www/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Публикации идут по одной и не прерывают друг друга на середине.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Сайт-заготовка шаблона не публикуется, поэтому job выключен.
+    # scripts/init находит строку по метке в комментарии и ставит условие
+    # github.repository == '<владелец>/<репозиторий>': форки сайт не публикуют.
+    if: false # template-init: pages-condition
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: www
+          retention-days: 1
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

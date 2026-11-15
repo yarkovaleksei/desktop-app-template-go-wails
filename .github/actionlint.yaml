@@ -1,0 +1,7 @@
+# Настройки actionlint (https://github.com/rhysd/actionlint).
+paths:
+  # В шаблоне публикация сайта выключена намеренно (`if: false`); scripts/init
+  # ставит вместо него условие на репозиторий проекта.
+  .github/workflows/pages.yml:
+    ignore:
+      - 'constant expression "false" in condition'
