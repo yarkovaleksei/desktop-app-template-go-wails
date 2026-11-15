@@ -68,7 +68,16 @@ tasks:
       - echo "smoke пройден, отчёт {{.SMOKE_DIR}}/report.json"
 
   dev:
-    summary: Окно в режиме разработки с перезагрузкой фронтенда
+    summary: Окно в режиме разработки в .task/dev-home; REAL=true — на настоящих каталогах пользователя
+    # Настройки, журнал и кэш разработки живут в .task/dev-home и не смешиваются
+    # с установленным приложением. Путь абсолютный: относительный appdirs
+    # отсчитал бы от домашнего каталога. Пустое значение при REAL=true значит
+    # «переменная не задана» — каталоги обычные. DESKTOP_APP_HOME, уже заданная
+    # в окружении, важнее обоих вариантов: так Task обращается с env.
+    # WebKitGTK на Linux пишет своё хранилище в ~/.cache/<slug> и
+    # ~/.local/share/<slug> мимо переменной.
+    env:
+      DESKTOP_APP_HOME: '{{if ne .REAL "true"}}{{.ROOT_DIR}}/.task/dev-home{{end}}'
     cmds:
       - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
 
