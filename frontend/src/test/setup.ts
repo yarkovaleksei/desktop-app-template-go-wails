@@ -4,7 +4,8 @@ import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 // В jsdom нет matchMedia, а useMediaQuery MUI его вызывает: система «в светлой теме».
-if (!window.matchMedia) {
+// Тесты с окружением node (i18n-lint.test.ts) окна не имеют.
+if (typeof window !== "undefined" && !window.matchMedia) {
   window.matchMedia = (query: string): MediaQueryList => ({
     matches: false,
     media: query,
@@ -18,6 +19,7 @@ if (!window.matchMedia) {
 }
 
 afterEach(() => {
+  if (typeof window === "undefined") return;
   cleanup();
   window.location.hash = "";
 });

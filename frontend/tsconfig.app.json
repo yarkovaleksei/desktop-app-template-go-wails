@@ -24,5 +24,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src", "bindings"]
+  "include": ["src", "bindings"],
+  // Тест правил ESLint выполняется в Node — его проверяет tsconfig.node.json.
+  "exclude": ["src/test/i18n-lint.test.ts"]
 }
