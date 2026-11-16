@@ -1,6 +1,6 @@
 # CI
 
-Четыре workflow GitHub Actions: что запускает каждый, на какие изменения, как читать прогон и разбирать падение. Workflow лежат в `.github/workflows/`; проверка их синтаксиса — `actionlint` (правило для `pages.yml` в `.github/actionlint.yaml`).
+Четыре workflow GitHub Actions: что запускает каждый, на какие изменения, как читать прогон и разбирать падение. Workflow лежат в `.github/workflows/`; проверка их синтаксиса — `actionlint` (настройки — `.github/actionlint.yaml`).
 
 | Workflow | Когда | Что делает |
 | --- | --- | --- |

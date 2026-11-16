@@ -94,3 +94,9 @@
 ## Инициализация шаблона
 
 Документы: [README.md#как-начать-проект-из-шаблона](../README.md#как-начать-проект-из-шаблона), [README.en.md#starting-a-project-from-the-template](../README.en.md#starting-a-project-from-the-template).
+
+| Пакет | Назначение |
+| --- | --- |
+| [`scripts/init`](../scripts/init) | Init превращает копию шаблона в новый проект: заменяет имена шаблона в отслеживаемых файлах и путях, ставит условие публикации сайта, сбрасывает spec/, пишет README проекта, перерисовывает иконки в цвет нового слага и удаляет служебные части шаблона, в том числе себя. |
+
+Ещё: [`.agents/skills/template-init`](../.agents/skills/template-init).

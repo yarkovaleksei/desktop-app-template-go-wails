@@ -19,8 +19,8 @@ type nameUse struct {
 	what string
 }
 
-// nameUses — все места, где имена приложения повторены вне Go. Инициализация
-// проекта меняет их вместе с appinfo; тест ловит пропущенное.
+// nameUses — все места, где имена приложения повторены вне Go. Имя меняется
+// во всех них вместе с appinfo; тест ловит пропущенное.
 var nameUses = []nameUse{
 	{"build/config.yml", regexp.MustCompile(`(?m)^\s*productName:\s*"([^"]*)"`), appinfo.Name, "Name"},
 	{"build/config.yml", regexp.MustCompile(`(?m)^\s*productIdentifier:\s*"([^"]*)"`), appinfo.ProductID, "ProductID"},

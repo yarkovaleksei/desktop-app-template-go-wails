@@ -62,7 +62,7 @@ internal/             app (Wails services), appinfo, settings, texts, updatechec
                       repodocs (code map), archtest (repository rules)
 frontend/             React + MUI: src/ (api, store, pages, i18n, theme), e2e/, bindings/
 build/                Wails configuration, icons, Linux, Windows and macOS packages
-scripts/              icon (icon generator), smoke-desktop.sh
+scripts/              init (project initialization from the template), icon (icon generator), smoke-desktop.sh
 docs/                 guides and the code map
 www/                  project site: one page in two languages
 spec/                 project plan: rules, stages, decisions, backlog, journal (in Russian)
@@ -94,7 +94,35 @@ The documentation map is [docs/README.md](docs/README.md): which document owns w
 
 ## Starting a project from the template
 
-There is no initialization tool yet. The template's placeholder names — the product name `Desktop App`, the slug `desktop-app`, the Go module, the repository, the product identifier, the environment prefix `DESKTOP_APP` — are in `internal/appinfo/appinfo.go`. The test `internal/archtest/names_test.go` knows every place outside Go where they are repeated: after replacing the names, `wails3 task check` lists the ones you missed.
+1. Get a copy of the template: on GitHub — “Use this template” → “Create a new repository” and clone the new repository, or clone the template itself under a new name and replace `origin`:
+
+   ```bash
+   git clone https://github.com/yarkovaleksei/desktop-app-template-go-wails.git my-app
+   cd my-app
+   git remote set-url origin https://github.com/owner/my-app.git
+   ```
+
+2. Initialize the project. With an agent — the `template-init` skill: it asks for the names, shows a dry run and runs the initialization once you agree. Without an agent — a dry run first, then the same command without `-dry-run`:
+
+   ```bash
+   go run ./scripts/init -name "My App" -repo owner/my-app -description "One-line description" -dry-run
+   go run ./scripts/init -name "My App" -repo owner/my-app -description "One-line description"
+   ```
+
+3. Follow the next steps the tool prints at the end — from `wails3 task deps` to a green `wails3 task check` — and commit the result.
+
+| Flag | What it sets | Default |
+| --- | --- | --- |
+| `-name` | Product name: window, menu, packages, site | required |
+| `-repo` | GitHub repository `owner/name`: updates, site, links | required |
+| `-description` | One-line description: build files, packages, launcher, README | required |
+| `-slug` | Binary, directory and package name, skill prefix | from the name: `my-app` |
+| `-module` | Go module | `github.com/<repository>` |
+| `-id` | Product identifier in reverse domain notation | `io.github.<owner>.<slug without hyphens>` |
+| `-author`, `-year` | Copyright holder and year in `LICENSE` and build files | repository owner, current year |
+| `-color` | Plate colour of the template icon, `#RRGGBB` | from the slug |
+
+The tool only works on a clean template tree: it refuses with uncommitted changes and on an already initialized project. It replaces the template names in every tracked file and path (the environment prefix comes from the slug: `MY_APP_HOME`), renames the launcher, the AppArmor profile and the `app-*` skills to `<slug>-*`, points site publishing at the project repository, resets `spec/` to its initial state with the product description from the flag, rewrites this README, redraws the icon in the new slug's colour and removes `scripts/init`, the `template-init` skill and this section. It stages its changes in git; the commit is yours.
 
 ## License
 

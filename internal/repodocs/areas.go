@@ -75,7 +75,9 @@ var Areas = []kitdocs.Area{
 		Paths: []string{"spec"},
 	},
 	{
-		Title: "Инициализация шаблона",
-		Docs:  []string{"README.md#как-начать-проект-из-шаблона", "README.en.md#starting-a-project-from-the-template"},
+		Title:    "Инициализация шаблона",
+		Docs:     []string{"README.md#как-начать-проект-из-шаблона", "README.en.md#starting-a-project-from-the-template"},
+		Packages: []string{"scripts/init"},
+		Paths:    []string{".agents/skills/template-init"},
 	},
 }

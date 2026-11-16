@@ -143,3 +143,4 @@ wails3 task release:plan    # только чтение: готово ли к в
 | [app-code-style](.agents/skills/app-code-style/SKILL.md) | Писать и проверять код по правилам проекта |
 | [app-spec](.agents/skills/app-spec/SKILL.md) | Составить план, вести этапы, решения, бэклог и журнал |
 | [app-ui](.agents/skills/app-ui/SKILL.md) | Страницы, компоненты, тексты и тема интерфейса |
+| [template-init](.agents/skills/template-init/SKILL.md) | Создать проект из шаблона: имена, иконки, следующие шаги; удаляется инициализацией |
